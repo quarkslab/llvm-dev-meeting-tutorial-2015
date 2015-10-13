@@ -41,5 +41,8 @@ find_python_module(lit REQUIRED)
 # set various configuration settings in the test suite
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Tests/lit.cfg.in" "${CMAKE_CURRENT_BINARY_DIR}/Tests/lit.cfg")
 
+if(NOT EXISTS ${LLVM_ROOT}/bin/FileCheck)
+    message(FATAL_ERROR "LLVM wasn't configured with -DLLVM_INSTALL_UTILS, cannot use FileCheck")
+endif()
 # provide the make check target based on lit
 add_custom_target(check COMMAND ${PYTHON_EXECUTABLE} -m lit.main "${CMAKE_CURRENT_BINARY_DIR}/Tests" -v)

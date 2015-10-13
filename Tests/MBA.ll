@@ -1,6 +1,7 @@
-; RUN: grep -v ' mul ' %s
-; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S -o %t0
-; RUN: ! grep ' mul ' %t0
+; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=1 %s -S | FileCheck -check-prefix=ON %s
+; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S | FileCheck -check-prefix=OFF %s
+; ON: mul
+; OFF-NOT: mul
 
 define i32 @foo(i32 %i, i32 %j) {
 entry:
