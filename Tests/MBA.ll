@@ -1,8 +1,9 @@
-; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=1 %s -S | FileCheck -check-prefix=ON %s
-; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S | FileCheck -check-prefix=OFF %s
-; ON: mul
-; OFF-NOT: mul
+; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=1 %s -S | FileCheck -check-prefix=CHECK -check-prefix=CHECK-ON %s
+; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S | FileCheck -check-prefix=CHECK -check-prefix=CHECK-OFF %s
 
+; CHECK-LABEL: @foo(
+; CHECK-ON: mul
+; CHECK-OFF-NOT: mul
 define i32 @foo(i32 %i, i32 %j) {
 entry:
   br label %while.cond
@@ -19,4 +20,3 @@ while.end:
   %i.addr.0.lcssa = phi i32 [ %i.addr.0, %while.cond ]
   ret i32 %i.addr.0.lcssa
 }
-
