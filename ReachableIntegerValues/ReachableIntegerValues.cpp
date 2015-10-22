@@ -16,32 +16,32 @@
 
 using namespace llvm;
 
-ReachableIntegerValuesPass::ReachableIntegerValuesPass() : FunctionPass(ID) {
-}
+ReachableIntegerValuesPass::ReachableIntegerValuesPass() : FunctionPass(ID) {}
 
-bool ReachableIntegerValuesPass::runOnFunction(Function& F) {
+bool ReachableIntegerValuesPass::runOnFunction(Function &F) {
   // The same instance of the analyse is created and registered, then used
   // repetitively, so we must clear its state each time we enter runOnFunction
   ReachableIntegerValuesMap.clear();
 
   // First compute sets of defined registers for each Basic block
   ReachableIntegerValuesMapTy DefinedValuesMap;
-  for(BasicBlock& BB : F) {
-    auto & Values = DefinedValuesMap[&BB];
-    for(Instruction& Inst : BB)
-      if(Inst.getType()->isIntegerTy())
+  for (BasicBlock &BB : F) {
+    auto &Values = DefinedValuesMap[&BB];
+    for (Instruction &Inst : BB)
+      if (Inst.getType()->isIntegerTy())
         Values.insert(&Inst);
   }
 
   // Second compute the reachable integer values
 
   // arguments and globals are always live
-  auto & HeadValues = ReachableIntegerValuesMap[&F.getEntryBlock()];
-  for(Argument & Arg: F.args())
+  auto &HeadValues = ReachableIntegerValuesMap[&F.getEntryBlock()];
+  for (Argument &Arg : F.args())
     HeadValues.insert(&Arg);
 
   // then use dominance tree to merge relevant sets
-  auto * Root = getAnalysis<DominatorTreeWrapperPass>().getDomTree().getRootNode();
+  auto *Root =
+      getAnalysis<DominatorTreeWrapperPass>().getDomTree().getRootNode();
   std::deque<decltype(Root)> NodesToProcess;
   NodesToProcess.push_back(Root);
 
@@ -55,7 +55,7 @@ bool ReachableIntegerValuesPass::runOnFunction(Function& F) {
       DEBUG(errs() << "updating dominated child " << Child->getBlock() << "\n");
       NodesToProcess.push_back(Child);
       {
-      // add defined values to dominated nodes
+        // add defined values to dominated nodes
         auto &Values = DefinedValuesMap[NodeToProcess->getBlock()];
         ReachableIntegerValuesMap[Child->getBlock()].insert(Values.begin(),
                                                             Values.end());
@@ -73,21 +73,24 @@ bool ReachableIntegerValuesPass::runOnFunction(Function& F) {
   return false;
 }
 
-// That's how dependencies are declared. Analyse are read-only, so they generally preserve everything
-// see http://llvm.org/docs/WritingAnLLVMPass.html#specifying-interactions-between-passes
+// That's how dependencies are declared. Analyse are read-only, so they
+// generally preserve everything
+// see
+// http://llvm.org/docs/WritingAnLLVMPass.html#specifying-interactions-between-passes
 void ReachableIntegerValuesPass::getAnalysisUsage(AnalysisUsage &Info) const {
   Info.addRequired<DominatorTreeWrapperPass>();
   Info.setPreservesAll();
 }
 
-ReachableIntegerValuesPass::ReachableIntegerValuesMapTy const& ReachableIntegerValuesPass::getReachableIntegerValuesMap() const {
+ReachableIntegerValuesPass::ReachableIntegerValuesMapTy const &
+ReachableIntegerValuesPass::getReachableIntegerValuesMap() const {
   return ReachableIntegerValuesMap;
 }
 
 char ReachableIntegerValuesPass::ID = 0;
-static RegisterPass<ReachableIntegerValuesPass> X(
-    "reachable-integer-values", // pass option
-    "Compute Reachable Integer values", // pass description
-    true, // does not modify the CFG
-    true // and it's an analysis
-    );
+static RegisterPass<ReachableIntegerValuesPass>
+    X("reachable-integer-values",         // pass option
+      "Compute Reachable Integer values", // pass description
+      true,                               // does not modify the CFG
+      true                                // and it's an analysis
+      );
