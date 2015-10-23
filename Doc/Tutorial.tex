@@ -1,0 +1,378 @@
+\documentclass[14pt]{beamer}
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+
+\usetheme{m}
+\usepackage{pacman}
+\usefonttheme{structurebold}
+\setbeamercovered{transparent}
+
+
+\usepackage{listings}
+\definecolor{darkgreen}{rgb}{0,0.6,0}
+\lstset{
+    basicstyle=\ttfamily,
+    showstringspaces=false,
+    commentstyle=\color{red},
+    keywordstyle=\color{blue},
+    stringstyle=\color{darkgreen}
+}
+
+%%
+% from http://tex.stackexchange.com/questions/23647/drawing-a-directory-listing-a-la-the-tree-command-in-tikz
+\usepackage{forest}
+\usetikzlibrary{arrows.meta}
+\forestset{
+  dir tree/.style={
+    for tree={
+      parent anchor=south west,
+      child anchor=west,
+      anchor=mid west,
+      inner ysep=1pt,
+      grow'=0,
+      align=left,
+      edge path={
+        \noexpand\path [draw, \forestoption{edge}] (!u.parent anchor) ++(1em,0) |- (.child anchor)\forestoption{edge label};
+      },
+      font=\sffamily,
+      if n children=0{}{
+        delay={
+          prepend={[,phantom, calign with current]}
+        }
+      },
+      fit=band,
+      before computing xy={
+        l=2em
+      }
+    },
+  }
+}
+
+%%
+
+\newcommand{\Command}[1]{\textbf{\texttt{#1}}}
+\newcommand{\Code}[1]{\textbf{\texttt{#1}}}
+
+%%
+
+\title{Building, Testing and Debugging a Simple out-of-tree LLVM Pass}
+\date{October 29, 2015, LLVM Developers' Meeting}
+
+\begin{document}
+
+{
+    \logo{\includegraphics[height=5em]{logo.png}\hspace{2em}}
+	\begin{frame}
+        \maketitle
+	\end{frame}
+}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{LLVM 3.7 --- Tutorial}
+        \begin{center}
+            \textbf{\Large Press Start Button}
+        \end{center}
+    \end{frame}
+
+    \begin{frame}{LLVM 3.7}
+        \begin{center}
+            \begin{itemize}
+                \centering
+                \item[]\alert{\bf Select difficulty}\vspace{1em}
+                \item[] \textbf{\texttt{>~}Easy\texttt{~<}}
+                \item[] Hard
+                \item[] Nightmare
+            \end{itemize}
+        \end{center}
+    \end{frame}
+
+    \begin{frame}{LLVM 3.7}
+
+            \begin{itemize}
+                \centering
+                \item[]\alert{\bf Stage Selection}\vspace{1em}
+                \item[] Adding a new Front-End
+                \item[] In-Tree Pass Developpment
+                \item[] \textbf{\texttt{>~}Out-of-Tree Pass Developpment\texttt{~<}}
+                \item[] Adding a new Back-End
+            \end{itemize}
+
+    \end{frame}
+
+    \begin{frame}{LLVM 3.7}
+
+            \begin{itemize}
+                \centering
+                \item[]\alert{\bf OS Selection}\vspace{1em}
+                \item[] \textbf{\texttt{>~}Linux\texttt{~<}}
+                \item[] OSX
+                \item[] \tikz\node[opacity=0.5]{Windows};
+            \end{itemize}
+
+    \end{frame}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{stage 1}
+
+        \framesubtitle{Setup a Proper CMake Project}
+
+        \begin{block}{Goals}
+            \begin{itemize}
+                \item Use LLVM cmake support
+                \item Build a minimal pass
+            \end{itemize}
+
+        \end{block}
+
+        \begin{alertblock}{Bonus}
+            \begin{itemize}
+                \item Setup a minimal test driver
+                \item Make the pass compatible with \Command{clang}
+            \end{itemize}
+        \end{alertblock}
+
+    \end{frame}
+
+    \begin{frame}{stage 1 --- Directory Layout}
+    \begin{forest}
+          dir tree
+          [Tutorial
+              [CMakeLists.txt\only<2>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake configuration file}]
+              [cmake\only<3>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake auxillary files}
+                [Python.cmake]
+              ]
+              [MBA\only<4>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ Our first pass}
+                  [CMakeLists.txt]
+                  [MBA.cpp]
+              ]
+          ]
+    \end{forest}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
+        \begin{block}{LLVM Detection}
+            \footnotesize
+            \lstinputlisting[firstline=5, lastline=11,language=bash,morekeywords={endif,message}]{../CMakeLists.txt}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
+        \begin{block}{Load LLVM Config}
+            \footnotesize
+            \lstinputlisting[firstline=15, lastline=17,language=bash,morekeywords={list,find_package}]{../CMakeLists.txt}
+        \end{block}
+        \begin{block}{And more LLVM Stuff}
+            \footnotesize
+            \lstinputlisting[firstline=19, lastline=21,language=bash,morekeywords={list,include}]{../CMakeLists.txt}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
+        \begin{block}{Propagate LLVM setup to our project}
+            \footnotesize
+            \lstinputlisting[firstline=24, lastline=27,language=bash,morekeywords={add_definitions,include_directories}]{../CMakeLists.txt}
+        \end{block}
+
+        \begin{block}{Get Ready!}
+            \footnotesize
+            \lstinputlisting[firstline=34, lastline=34,language=bash,morekeywords={add_subdirectory}]{../CMakeLists.txt}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- \texttt{MBA/CMakeLists.txt}}
+        \begin{block}{Declare a Pass}
+            \footnotesize
+            \lstinputlisting[firstline=2, lastline=2,language=bash,morekeywords={add_llvm_loadable_module}]{../MBA/CMakeLists.txt}
+        \end{block}
+
+        \begin{alertblock}{1 Pass = 1 Dynamically Loaded Library}
+            \begin{itemize}
+                \item Passes are loaded by a pass driver: \textbf{\texttt{opt}}
+{
+\footnotesize
+\begin{lstlisting}[language=bash]
+% opt -load LLVMMBA.so -mba input.ll -S
+\end{lstlisting}
+}
+                \item Or by clang (provided an extra setup)
+{
+\footnotesize
+\begin{lstlisting}[language=bash]
+% clang -Xclang -load -Xclang LLVMMBA.so input.c -c
+\end{lstlisting}
+}
+            \end{itemize}
+        \end{alertblock}
+
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- \texttt{MBA.cpp}}
+        {
+            \footnotesize
+            \lstinputlisting[linerange={24-24,27-27,45-45,52-55,58-58,60-60,71-72,111-113},language=c++]{../MBA/MBA.cpp}
+        }
+    \end{frame}
+
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- \texttt{MBA.cpp}}
+        \begin{alertblock}{Registration Stuff}
+            \begin{itemize}
+                \item Only performs registration for \Command{opt} use!
+                \item Uses a static constructor\dots
+            \end{itemize}
+        \end{alertblock}
+        {
+            \footnotesize
+            \lstinputlisting[linerange={121-126},language=c++]{../MBA/MBA.cpp}
+        }
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- Bonus Level}
+        \begin{alertblock}{Setup test infrastructure}
+            \begin{itemize}
+                \item Rely on \Command{lit}, LLVM's Integrated Tester
+                \item {\footnotesize
+\begin{lstlisting}[language=bash]
+% pip install --user lit
+\end{lstlisting}
+                    }
+            \end{itemize}
+        \end{alertblock}
+
+        \begin{block}{\texttt{CMakeLists.txt} update}
+{
+\scriptsize
+\lstinputlisting[linerange={39-41,50-53},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../CMakeLists.txt}
+}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+        \frametitle{stage 1 --- Bonus Level}
+        \begin{alertblock}{Make the pass usable from \Command{clang}}
+            \begin{itemize}
+                \item Automatically loaded in \Command{clang}'s optimization flow: {\footnotesize\lstinline|clang -Xclang -load -Xclang|}
+                \item Several extension point exist
+            \end{itemize}
+        \end{alertblock}
+
+{
+\scriptsize
+\lstinputlisting[linerange={130-136,139-140},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
+}
+    \end{frame}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{stage 2}
+
+        \framesubtitle{Build a Simple Pass}
+
+        \begin{block}{Goals}
+            \begin{itemize}
+                \item Learn basic LLVM IR manipulations
+                \item Write a simple test
+            \end{itemize}
+
+        \end{block}
+
+        \begin{alertblock}{Bonus}
+            \begin{itemize}
+                \item Follow LLVM's guidelines
+                \item Collect statistics on your pass
+                \item Collect debug informations on your pass
+            \end{itemize}
+        \end{alertblock}
+
+    \end{frame}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{stage 3}
+
+        \framesubtitle{Build an Analysis}
+
+        \begin{block}{Goals}
+            \begin{itemize}
+                \item Understand the difference with a Transformation
+                \item Use Dominator trees
+                \item Write a \Code{llvm::FunctionPass}
+                \item Describe the dependency tree of a Pass
+            \end{itemize}
+        \end{block}
+
+        \begin{alertblock}{Bonus}
+            \begin{itemize}
+                \item Follow LLVM's guidelines
+            \end{itemize}
+        \end{alertblock}
+
+
+    \end{frame}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{stage 3}
+
+        \framesubtitle{Write a Complex Pass}
+
+        \begin{block}{Goals}
+            \begin{itemize}
+                \item Modify the Control Flow Graph (CFG)
+                \item Syndicate code in a third-party library
+            \end{itemize}
+
+        \end{block}
+
+        \begin{alertblock}{Bonus}
+            \begin{itemize}
+                \item Declare extra options
+            \end{itemize}
+        \end{alertblock}
+
+    \end{frame}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{GAME OVER}
+
+        \begin{itemize}
+            \centering
+            \item[]\includegraphics[height=2em]{logo.png}
+            \item[]\alert{\bf Creditz}\vspace{-1em}
+            \item[]\texttt{Serge~Guelton~<sguelton@quarkslab.com>}
+            \item[]\texttt{Adrien Guinet <aguinet@quarkslab.com>}
+        \end{itemize}
+        %
+        \begin{itemize}
+            \centering
+            \item[]\alert{\bf Insert Coins}\vspace{.1em}
+            \item[]\texttt{Exit}
+            \item[]\texttt{> Play Again <}
+        \end{itemize}
+
+    \end{frame}
+
+\end{document}

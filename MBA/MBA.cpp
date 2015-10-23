@@ -49,13 +49,15 @@ namespace {
 
 // A pass that perform a simple instruction substitution
 // see http://llvm.org/docs/WritingAnLLVMPass.html#the-basicblockpass-class
-class MBA : public llvm::BasicBlockPass {
+class MBA : public BasicBlockPass {
 
 public:
   static char ID;
   compat::RandomNumberGenerator RNG;
 
-  MBA() : llvm::BasicBlockPass(ID), RNG(nullptr) {}
+  MBA() : BasicBlockPass(ID)
+          , RNG(nullptr)
+  {}
 
   // Called once for each module, before the calls on the basic block
   // We could use doFinalization to clear RNG, bu that's not needed
@@ -117,7 +119,7 @@ public:
  */
 char MBA::ID = 0;
 static RegisterPass<MBA>
-    X("mba",                                   // the option name -> -mba
+    X("mba",  // the option name -> -mba
       "Mixed Boolean Arithmetic Substitution", // option description
       true, // true as we don't modify the CFG
       false // true if we're writing an analysis
@@ -129,12 +131,10 @@ static RegisterPass<MBA>
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
 static void registerClangPass(const PassManagerBuilder &,
-                              legacy::PassManagerBase &PM) {
-  PM.add(new MBA());
-}
+                              legacy::PassManagerBase &PM)
+{ PM.add(new MBA()); }
 
 // Note the registration point, clang offers several insertion point where you
 // can insert your pass
-static RegisterStandardPasses
-    RegisterClangPass(PassManagerBuilder::EP_EarlyAsPossible,
-                      registerClangPass);
+static RegisterStandardPasses RegisterClangPass
+    (PassManagerBuilder::EP_EarlyAsPossible, registerClangPass);

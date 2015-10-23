@@ -1,0 +1,101 @@
+%
+% This package provides a fancy pacman slide counter for beamer
+%
+% author: Serge « sans paille » Guelton <serge.guelton@telecom-bretagne.eu>
+% author: Emmanuel Perrier
+%
+% usage: \usepackage{pacman} redefines the navigation symbols
+%
+% note: the pacman is draw with the theme's color for section in head/foot, the frame count use the page number in head/foot color
+%
+% licence: BSD
+%
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pacman}
+
+\RequirePackage{pgf}
+\RequirePackage{tikz}
+\RequirePackage{hyperref}
+%
+%% body
+
+\makeatletter
+\setbeamertemplate{footline}{% can replace footline or navigation symbols
+%\usenavigationsymbolstemplate{% (comment \kern1em\vskip2pt at the end of the file if you choose to replace navigation symbols))
+  \ifbeamer@draftmode % donothing under draft mode to save precious time
+  \else
+    \ifnum\insertframestartpage=\insertpagenumber
+      \hypertarget{Frame\insertframenumber}{}
+    \fi
+
+    \ifnum\c@framenumber>1
+      \usebeamercolor{page number in head/foot}%
+      \begin{tikzpicture}
+        \tikzset{font=\scriptsize,text={page number in head/foot.fg},}
+        \path[use as bounding box] (0,-1.0mm) rectangle (\paperwidth,1.0mm);
+        \pgfmathsetmacro{\mynumber}{\inserttotalframenumber}
+        \pgfmathsetmacro{\mylistnumber}{\mynumber - 1}
+        \pgfmathsetmacro{\linewidth}{\paperwidth*.3514598035146}
+        \pgfmathsetmacro{\mywidth}{(\linewidth-1.8)/(\mynumber+1)}
+        \pgfmathsetmacro{\mycurr}{\insertframenumber}
+        \pgfmathsetmacro{\mynextcurr}{\mycurr+1}
+        \pgfmathparse{int(\mycurr-1)}
+        \edef\myprevcurr{\pgfmathresult}
+        \pgfmathsetmacro{\lastpos}{\mywidth*(\mylistnumber+1)}
+        \pgfmathsetmacro{\bonuspos}{(mod(\mycurr-1,\mynumber)+1)*\mywidth}
+
+        \ifnum\c@framenumber<\mynumber
+          \pgfmathsetmacro{\MyCurr}{\mycurr+1}
+          \draw [draw={navigation symbols.fg},] %% draw pacman %%%
+            (\MyCurr*\mywidth*1mm,.8mm) arc [start angle=90, delta angle=180, x radius=.8mm, y radius=.8mm] -- (\MyCurr*\mywidth*1mm,-.8mm)
+            (\MyCurr*\mywidth*1mm,.8mm) arc [start angle=90, delta angle=-60, x radius=.8mm, y radius=.8mm] -- (\MyCurr*\mywidth*1mm,0)
+            (\MyCurr*\mywidth*1mm,-.8mm) arc [start angle=-90, delta angle=60, x radius=.8mm, y radius=.8mm] -- (\MyCurr*\mywidth*1mm,0);
+
+          \ifnum\c@framenumber<\mylistnumber
+            \foreach \x in {\mynextcurr,..., \mylistnumber} {
+              \pgfmathsetmacro{\X}{\x+1}
+              \pgfmathparse{mod(\X,5) ? ".4mm" : ".8mm"}
+              \edef\r{\pgfmathresult}
+              \pgfmathparse{int(\X)}
+              \edef\f{\pgfmathresult}
+              \node at (\X*\mywidth*1mm, 0) {\hyperlink{Frame\f}{\XeTeXLinkBox{%
+                  \tikz{\draw [draw={navigation symbols.fg},] (\X*\mywidth*1mm, 0) circle (\r);}}}
+              };
+            }
+          \fi
+          %% draw phantom %%%
+          \pgfmathsetmacro{\LastPos}{\lastpos+\mywidth}
+          \draw[draw={navigation symbols.fg},]
+            (\LastPos*1mm+.8mm, .8mm) arc [start angle=0, delta angle=180, x radius=.8mm, y radius=.8mm]
+            -- (\LastPos*1mm -.8mm, .8mm) -- (\LastPos*1mm -.8mm, -.6mm)
+            arc [start angle=0, delta angle=180, x radius=-.2mm, y radius=-.2mm]
+            -- (\LastPos*1mm -.2mm, -.6mm)
+            arc [start angle=0, delta angle=180, x radius=-.2mm, y radius=-.2mm]
+            -- (\LastPos*1mm +.4mm, -.6mm)
+            arc [start angle=0, delta angle=180, x radius=-.2mm, y radius=-.2mm]
+            -- (\LastPos*1mm +.8mm, -.6mm)
+            -- (\LastPos*1mm +.8mm, .8mm);
+          \draw[draw={navigation symbols.fg},very thin] (\LastPos*1mm +.25mm, .8mm) circle (.1mm);
+          \draw[draw={navigation symbols.fg},very thin] (\LastPos*1mm -.25mm, .8mm) circle (.1mm);
+
+          \node[anchor=east] at (\linewidth*1mm-.15mm,2.8mm) {\myprevcurr}; %% frame count %%%
+        \else
+          \node[anchor=east] at (\linewidth*1mm-.15mm,2.8mm) {\myprevcurr}; %% frame count %%%
+          \pgfmathsetmacro{\BonusPos}{\bonuspos+\mywidth}
+
+          \filldraw [draw={navigation symbols.fg},fill={navigation symbols.fg},]
+            (\BonusPos * 1mm, .8mm) arc [start angle=90, delta angle=180, x radius=.8mm, y radius=.8mm] -- (\BonusPos * 1mm,-.8mm)
+            (\BonusPos * 1mm, .8mm) arc [start angle=90, delta angle=-60, x radius=.8mm, y radius=.8mm] -- (\BonusPos * 1mm,0)
+            (\BonusPos * 1mm,-.8mm) arc [start  angle=-90,delta angle= 60, x radius=.8mm, y radius=.8mm] -- (\BonusPos * 1mm,0);
+        \fi
+      \end{tikzpicture}
+    \fi
+    \kern1em\vskip2pt% comment this line while replacing navigation symbols
+  \fi
+}
+\makeatother
+
+\ProcessOptions% evenf if none :-)
+\endinput
+
