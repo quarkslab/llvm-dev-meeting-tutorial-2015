@@ -89,19 +89,19 @@ public:
             IRBuilder<> Builder(BinOp);
 
             Value *NewValue = Builder.CreateAdd(
-                Builder.CreateXor(BinOp->getOperand(0), BinOp->getOperand(1)),
-                Builder.CreateMul(ConstantInt::get(BinOp->getType(), 2),
-                                  Builder.CreateAnd(BinOp->getOperand(0),
-                                                    BinOp->getOperand(1))));
-            ;
+              Builder.CreateXor(BinOp->getOperand(0), BinOp->getOperand(1)),
+              Builder.CreateMul(ConstantInt::get(BinOp->getType(), 2),
+                Builder.CreateAnd(BinOp->getOperand(0),
+                BinOp->getOperand(1)))
+            );
 
-            // We could use ReplaceInstWithValue  but that's incomaptible with
+            // We could use ReplaceInstWithValue  but that's incompatible with
             // inplace modification of the BB
             // see
             // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
             BinOp->replaceAllUsesWith(NewValue);
             modified = true;
-
+            DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
             // update statistics!
             ++MBACount;
           }

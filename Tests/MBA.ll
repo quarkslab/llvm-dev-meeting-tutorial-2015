@@ -1,5 +1,5 @@
-; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=1 %s -S | FileCheck -check-prefix=CHECK -check-prefix=CHECK-ON %s
-; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S | FileCheck -check-prefix=CHECK -check-prefix=CHECK-OFF %s
+; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=1 %s -S | FileCheck -check-prefix=CHECK-ON %s
+; RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S | FileCheck -check-prefix=CHECK-OFF %s
 
 ; CHECK-LABEL: @foo(
 ; CHECK-ON: mul

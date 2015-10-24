@@ -18,6 +18,65 @@
     keywordstyle=\color{blue},
     stringstyle=\color{darkgreen}
 }
+\makeatletter
+\lstdefinelanguage{llvm}{
+  morecomment = [l]{;},
+  morestring=[b]", 
+  sensitive = true,
+  classoffset=0,
+  morekeywords={
+  },
+  classoffset=1, keywordstyle=\color[rgb]{0.228, 0.703, 0.718},
+  morekeywords={
+    % instructions
+    % terminators
+    ret, br, switch, indirectbr, invoke, resume, unreachable,
+    % binary operations
+    add, fadd, sub, fsub, mul, fmul, udiv, sdiv, fdiv, urem, srem, frem,
+    % bitwise binary operations
+    shl, lshr, ashr, and, or, xor,
+    % vector operations
+    extractelement, insertelement, shufflevector,
+    % aggregate operations
+    extractvalue, insertvalue,
+    % memory access and addressing operations
+    alloca, load, store, fence, cmpxchg, atomicrmw, getelementptr,
+    % conversion operations
+    trunc, zext, sext, fptrunc, fpext, fptoui, fptosi, uitofp, sitofp, ptrtoint,
+    inttoptr, bitcast,
+    % other operations
+    icmp, fcmp, phi, select, call, va_arg, landingpad,
+    % instruction arguments
+    nuw, nsw, exact, acquire, release, acq_rel, seq_cst, singlethread, volatile,
+    xchg, add, sub, and, nand, or, xor, max, min, umax, umin, to, eq, ne, ugt,
+    uge, ult, ule, sgt, sge, slt, sle, false, oeq, ogt, oge, olt, ole, one, ort,
+    ueq, ugt, uge, ult, ule, une, uno, true,  personality, catch, filter,
+    cleanup, inbounds, unwind, label, align, tail, to,
+    % I thought these shouldn't be the same color as %vars, moved from
+    % lower-level keywords
+    define, declare, global, constant,
+    internal, external, private,
+    linkonce, linkonce_odr, weak, weak_odr, appending,
+    common, extern_weak,
+    thread_local, dllimport, dllexport,
+    hidden, protected, default,
+    except, deplibs,
+    volatile, fastcc, coldcc, cc, ccc,
+    x86_stdcallcc, x86_fastcallcc,
+    ptx_kernel, ptx_device,
+    signext, zeroext, inreg, sret, nounwind, noreturn,
+    nocapture, byval, nest, readnone, readonly, noalias, uwtable,
+    inlinehint, noinline, alwaysinline, optsize, ssp, sspreq,
+    noredzone, noimplicitfloat, naked, alignstack,
+    module, asm, align, tail, to,
+    addrspace, section, alias, sideeffect, c, gc,
+    target, datalayout, triple,
+    blockaddress
+  },
+  alsoletter={\%,.},
+  keywordsprefix={\%},
+}
+\makeatother
 
 %%
 % from http://tex.stackexchange.com/questions/23647/drawing-a-directory-listing-a-la-the-tree-command-in-tikz
@@ -75,6 +134,12 @@
     \begin{frame}{LLVM 3.7 --- Tutorial}
         \begin{center}
             \textbf{\Large Press Start Button}
+        \end{center}
+    \end{frame}
+
+    \begin{frame}{LLVM 3.7 --- Prerequisite}
+        \begin{center}
+            \textbf{\Large Please Load LLVM3.7}
         \end{center}
     \end{frame}
 
@@ -287,19 +352,157 @@
         \begin{block}{Goals}
             \begin{itemize}
                 \item Learn basic LLVM IR manipulations
-                \item Write a simple test
+                \item Write a simple test case
             \end{itemize}
 
         \end{block}
 
         \begin{alertblock}{Bonus}
             \begin{itemize}
-                \item Follow LLVM's guidelines
                 \item Collect statistics on your pass
                 \item Collect debug informations on your pass
             \end{itemize}
         \end{alertblock}
 
+    \end{frame}
+
+    \begin{frame}{stage 2 --- MBA}
+        \framesubtitle{Mixed Boolean Arithmetic}
+
+        \begin{alertblock}{Simple Instruction Selection}
+            Turns: $a + b$
+
+            Into: $(a \oplus b) + 2 \times (a \wedge b)$
+        \end{alertblock}
+
+        \begin{block}{Context}
+            \alert{$\Rightarrow$} Useful for code obfuscation
+        \end{block}
+
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+    \frametitle{stage2 --- \texttt{runOnBasicBlock++}}
+    \begin{itemize}
+        \item Iterate over a \Code{BasicBlock}
+        \item Use LLVM's \Code{dyn\_cast}
+    \end{itemize}
+    {
+        \scriptsize
+        \lstinputlisting[breaklines=true,linerange={75-75,79-79,83-84},language=c++]{../MBA/MBA.cpp}
+    }
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+    \frametitle{stage2 --- \texttt{runOnBasicBlock++}}
+    LLVM Instruction creation/insertion:
+    \begin{itemize}
+        \item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
+    \end{itemize}
+    \hspace{-5em}%
+    \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={89-96},language=c++]{../MBA/MBA.cpp}
+    \end{minipage}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]
+    \frametitle{stage2 --- \texttt{runOnBasicBlock++}}
+    Instruction substitution:
+    \begin{itemize}
+        \item Use \Code{Value::replaceAllUsesWith} (safe)
+        \item Could be \Code{llvm::ReplaceInstWithValue} (but not inplace)
+    \end{itemize}
+    \hspace{-5em}%
+    \begin{minipage}{\textwidth}
+        \footnotesize
+        \lstinputlisting[breaklines=false,linerange={102-103},language=c++]{../MBA/MBA.cpp}
+    \end{minipage}
+    \end{frame}
+
+    \begin{frame}{stage 2 --- Write a simple test}
+        \begin{alertblock}{\Command{lit} principles}
+            \begin{itemize}
+                \item One source file (say \texttt{.c} or \texttt{.ll}) per test case
+                \item Use comments to describe the test
+                \item Use substitution for test configuration
+            \end{itemize}
+        \end{alertblock}
+
+        \begin{block}{\Command{FileCheck} --- \Command{grep} on steroids!}
+            \begin{itemize}
+                \item Compares \Code{argv[1]} and \Code{stdin}
+                \item Reads check\textbf{s} from comments in \Code{argv[1]}
+                \item[$\Rightarrow$] Requires LLVM with \Code{-DLLVM\_INSTALL\_UTILS}
+            \end{itemize}
+        \end{block}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 2 --- test sample}
+    \hspace{-1em}\begin{minipage}{\textwidth}
+            \footnotesize
+            \lstinputlisting[breaklines=true,language=c]{../Tests/MBA.c}
+        \end{minipage}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
+    \hspace{-1em}\begin{minipage}{\textwidth}
+            \footnotesize
+            \lstinputlisting[breaklines=true,linerange={1-7},language=llvm]{../Tests/MBA.ll}
+            \dots
+            \lstinputlisting[breaklines=true,linerange={22-22},language=llvm]{../Tests/MBA.ll}
+        \end{minipage}
+    \end{frame}
+
+
+    \begin{frame}[containsverbatim]{stage 2 --- Bonus}
+        \framesubtitle{Collect Statistics}
+        \structure{How many substitutions have we done?}
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={21-22},language=c++]{../MBA/MBA.cpp}
+        }
+        \vspace{-1em}%
+        \hspace{-5.5em}%
+        \begin{minipage}{\textwidth}
+            \footnotesize
+            \lstinputlisting[breaklines=false,linerange={105-106},language=c++]{../MBA/MBA.cpp}
+        \end{minipage}
+
+        \structure{Collect them!}
+        {
+        \footnotesize
+\begin{lstlisting}[language=bash]
+% opt -load LLVMMBA.so -mba -stats ...
+\end{lstlisting}
+        }
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 2 --- Bonus}
+        \framesubtitle{Debug your pass}
+        \begin{alertblock}{\Code{DEBUG()} and \Code{DEBUG\_TYPE}}
+        Setup a guard:
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={15-16},language=c++]{../MBA/MBA.cpp}
+        }
+        Add a trace:\\
+        \hspace{-6em}%
+        \begin{minipage}{\textwidth}
+        \footnotesize
+        \lstinputlisting[breaklines=false,linerange={104-104},language=c++]{../MBA/MBA.cpp}
+        \end{minipage}
+        \end{alertblock}
+        \begin{block}{Collect the trace}
+        {
+        \footnotesize
+        \begin{lstlisting}[language=bash]
+% opt -O2 -mba -debug ... # verbose
+% opt -O2 -mba -debug-only=mba ... # selective
+        \end{lstlisting}
+        }
+        \end{block}
+        Everything disapears under \Code{-DNDEBUG}
     \end{frame}
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -312,10 +515,9 @@
 
         \begin{block}{Goals}
             \begin{itemize}
-                \item Understand the difference with a Transformation
                 \item Use Dominator trees
                 \item Write a \Code{llvm::FunctionPass}
-                \item Describe the dependency tree of a Pass
+                \item Describe dependencies
             \end{itemize}
         \end{block}
 
@@ -325,8 +527,28 @@
             \end{itemize}
         \end{alertblock}
 
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 3 --- Bonus}
+        \framesubtitle{LLVM's coding standard}
+
+        \alert{Optional}: You're working out-of tree.\\
+        But\dots
+        \begin{itemize}
+            \item Provides a common reference
+            \item Helps for visual consistency
+        \end{itemize}
+        {
+            \footnotesize
+\begin{lstlisting}[language=bash]
+% find . \( -name '*.cpp' -o -name '*.h' \) \
+    -exec clang-format-3.7 -i {} \;
+\end{lstlisting}
+        }
+        \url{http://llvm.org/docs/CodingStandards.html}
 
     \end{frame}
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -370,7 +592,7 @@
             \centering
             \item[]\alert{\bf Insert Coins}\vspace{.1em}
             \item[]\texttt{Exit}
-            \item[]\texttt{> Play Again <}
+            \item[]\texttt{\hyperlink{Frame1}{> Play Again <}}
         \end{itemize}
 
     \end{frame}
