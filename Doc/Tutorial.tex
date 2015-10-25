@@ -529,6 +529,97 @@
 
     \end{frame}
 
+    \begin{frame}{stage 3 --- ReachableIntegerValues}
+        \begin{alertblock}{Simple Module Analyse}
+            Create a mapping between a \Code{BasicBlock} and a set of \Code{Value}s that can be used in this block.
+        \end{alertblock}
+
+        \begin{block}{Algorithm}
+            $V = \text{Visible values}, D = \text{Defined Values}$\\\vspace{-.5em}\tikz\draw (0,0) -- (2,0);
+
+            \begin{tikzpicture}
+                \node[draw=blue] (head) {$v_0$ = ...};
+                \node[draw=blue] (loop) [below of=head] {$v_1$ = ...};
+                \node[draw=blue] (tail) [below of=loop] {$v_2$ = ...};
+                \draw[->,thick] (head) -- (loop);
+                \draw[->,thick] (loop) to [out=-25,in=25,looseness=6] (loop);
+                \draw[->,thick] (loop) -- (tail);
+
+                \node<2-> [right of=head, xshift=8em] {$V = \varnothing, D = \{ v_0 \}$};
+                \node<3-> [right of=loop, xshift=8em] {$V = \{ v_0 \}, D = \{ v_1 \}$};
+                \node<4-> [right of=tail, xshift=8em] {$V = \{ v_0, v_1 \}, D = \{ v_2 \}$};
+            \end{tikzpicture}
+        \end{block}
+
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 3 --- Building an Analysis}
+        \begin{alertblock}{Pass Registration}
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=false,linerange={91-96},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        }
+        \end{alertblock}
+
+        \begin{block}{\texttt{CMakeLists.txt}}
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={1-1},language=c++]{../ReachableIntegerValues/CMakeLists.txt}
+        }
+        \end{block}
+
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 3 --- Analysis}
+
+        \begin{itemize}
+            \item Need to export the class declaration in a header
+            \item Need to load the analysis in \Command{opt} explicitly
+            \item Result of the analysis stored as a member variable
+        \end{itemize}
+
+        \structure{API}\\
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={14-16},language=c++]{../include/ReachableIntegerValues.h}
+        }
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 3 --- Make Result Available}
+        \begin{alertblock}{Dependency Processing}
+            \begin{enumerate}
+                \item PM runs each required analysis (if not cached)
+                \item PM runs the Pass entry point
+                \item the Pass calls \Code{getAnalysis<\dots>} to access the instance
+            \end{enumerate}
+        \end{alertblock}
+    \end{frame}
+
+
+    \begin{frame}[containsverbatim]{stage 3 --- Declare Dependencies}
+
+        \begin{alertblock}{Dependency on DominatorTree}
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={80-83},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        }
+        \end{alertblock}
+
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 3 --- \texttt{runOnFunction}}
+        \begin{alertblock}{Entry Point}
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={21-21,24-24},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        \texttt{~~~//\dots init stuff}
+        \lstinputlisting[breaklines=true,linerange={43-44},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        \texttt{~~~//\dots fill the map}
+        \lstinputlisting[breaklines=true,linerange={73-74},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        }
+        \end{alertblock}
+    \end{frame}
+
     \begin{frame}[containsverbatim]{stage 3 --- Bonus}
         \framesubtitle{LLVM's coding standard}
 
@@ -554,7 +645,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \begin{frame}{stage 3}
+    \begin{frame}{stage 4}
 
         \framesubtitle{Write a Complex Pass}
 

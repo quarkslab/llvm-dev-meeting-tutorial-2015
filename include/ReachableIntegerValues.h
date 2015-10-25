@@ -10,8 +10,9 @@ public:
       llvm::ValueMap<llvm::BasicBlock const *, std::set<llvm::Value *>>;
   static char ID;
   ReachableIntegerValuesPass();
-  bool runOnFunction(llvm::Function &) override;
+
   void getAnalysisUsage(llvm::AnalysisUsage &Info) const override;
+  bool runOnFunction(llvm::Function &) override;
   ReachableIntegerValuesMapTy const &getReachableIntegerValuesMap() const;
 
 private:

@@ -1,1 +1,264 @@
-/home/sguelton/sources/mtheme/beamerinnerthememetropolis.sty
+%%
+%% This is file `beamerinnerthememetropolis.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% beamerinnerthememetropolis.dtx  (with options: `package')
+%% ---------------------------------------------------------------------------
+%% Copyright 2015 Matthias Vogelgesang and the LaTeX community. A full list of
+%% contributors can be found at
+%% 
+%%     https://github.com/matze/mtheme/graphs/contributors
+%% 
+%% and the original template was based on the HSRM theme by Benjamin Weiss.
+%% 
+%% This work is licensed under a Creative Commons Attribution-ShareAlike 4.0
+%% International License (https://creativecommons.org/licenses/by-sa/4.0/).
+%% ---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerinnerthememetropolis}[2015/06/12 Metropolis inner theme]
+\RequirePackage{etoolbox}
+\RequirePackage{calc}
+\RequirePackage{pgfopts}
+\RequirePackage{tikz}
+\pgfkeys{
+  /metropolis/inner/block/.cd,
+    .is choice,
+    transparent/.code=\setlength{\@metropolis@blockskip}{0ex},
+    fill/.code=\setlength{\@metropolis@blockskip}{1ex},
+}
+\pgfkeys{
+  /metropolis/inner/titleformat/.cd,
+    .is choice,
+    regular/.code=\renewcommand{\@metropolis@titleformat}{},
+    lowercase/.code={%
+  \renewcommand{\@metropolis@titleformat}{}
+    },
+    uppercase/.code={%
+  \renewcommand{\@metropolis@titleformat}{}
+    },
+}
+\pgfkeys{
+  /metropolis/inner/sectiontitleformat/.cd,
+    .is choice,
+    regular/.code=\renewcommand{\@metropolis@sectiontitleformat}{},
+    lowercase/.code={%
+  \renewcommand{\@metropolis@sectiontitleformat}{}
+    },
+    uppercase/.code={%
+  \renewcommand{\@metropolis@sectiontitleformat}{}
+    },
+}
+\pgfkeys{
+  /metropolis/inner/sectionpage/.cd,
+    .is choice,
+    none/.code=\@metropolis@sectionpage@none,
+    progressbar/.code=\@metropolis@sectionpage@progressbar,
+}
+\newcommand{\@metropolis@inner@setdefaults}{
+  \pgfkeys{/metropolis/inner/.cd,
+    sectionpage=progressbar,
+    block=transparent,
+    titleformat=lowercase,
+    sectiontitleformat=lowercase,
+  }
+}
+\def\@metropolis@titleformat#1{#1}
+\def\@metropolis@sectiontitleformat#1{#1}
+\patchcmd{\sectionentry}
+  {\def\insertsectionhead{#2}}
+  {\def\insertsectionhead{\@metropolis@sectiontitleformat{#2}}}
+  {}
+  {\PackageError{beamerinnerthememetropolis}{Patching section title failed.}}
+\patchcmd{\beamer@section}
+  {\def\insertsectionhead{\hyperlink{Navigation\the\c@page}{#1}}}
+  {\def\insertsectionhead{\hyperlink{Navigation\the\c@page}{\@metropolis@sectiontitleformat{#1}}}}
+  {}
+  {\PackageError{beamerinnerthememetropolis}{Patching section title failed.}}
+\setbeamertemplate{title page}{
+  \begin{minipage}[b][\paperheight]{\textwidth}
+    \ifx\inserttitlegraphic\@empty\else\usebeamertemplate*{title graphic}\fi
+    \vfill%
+    \ifx\inserttitle\@empty\else\usebeamertemplate*{title}\fi
+    \ifx\insertsubtitle\@empty\else\usebeamertemplate*{subtitle}\fi
+    \usebeamertemplate*{title separator}
+    \ifx\beamer@shortauthor\@empty\else\usebeamertemplate*{author}\fi
+    \ifx\insertdate\@empty\else\usebeamertemplate*{date}\fi
+    \ifx\insertinstitute\@empty\else\vfill\usebeamertemplate*{institute}\vfill\fi
+    \vfill
+    \vspace*{1mm}
+  \end{minipage}
+}
+\def\maketitle{%
+  \ifbeamer@inframe
+    \titlepage
+  \else
+    \frame[plain]{\titlepage}
+  \fi
+}
+\def\titlepage{%
+  \usebeamertemplate{title page}
+}
+\setbeamertemplate{title graphic}{
+  \vbox to 0pt {
+    \vspace*{2em}
+    \inserttitlegraphic%
+  }%
+  \nointerlineskip%
+}
+\setbeamertemplate{title}{
+  \raggedright%
+  \linespread{1.0}%
+  \@metropolis@titleformat{\inserttitle}%
+  \par%
+  \vspace*{0.5em}
+}
+\setbeamertemplate{subtitle}{
+  \insertsubtitle%
+  \par%
+  \vspace*{0.5em}
+}
+\setbeamertemplate{title separator}{
+  \begin{tikzpicture}
+    \draw[fg] (0, 0) -- (\textwidth, 0);
+  \end{tikzpicture}%
+  \par%
+}
+\setbeamertemplate{author}{
+  \vspace*{2em}
+  \insertauthor%
+  \par%
+  \vspace*{0.25em}
+}
+\setbeamertemplate{date}{
+  \insertdate%
+  \par%
+}
+\setbeamertemplate{institute}{
+  \vspace*{3mm}
+  \insertinstitute%
+  \par%
+}
+\newcommand{\@metropolis@sectionpage@none}{
+  \AtBeginSection{
+    % intenionally empty
+  }
+}
+\defbeamertemplate{section page}{progressbar}{
+  \centering
+  \begin{minipage}{22em}
+    \usebeamercolor[fg]{section title}
+    \usebeamerfont{section title}
+    \insertsectionhead\\[-1ex]
+    \usebeamertemplate*{progress bar in section page}
+  \end{minipage}
+  \par
+}
+\newcommand{\@metropolis@sectionpage@progressbar}{
+  \setbeamertemplate{section page}[progressbar]
+  \AtBeginSection{
+    \ifbeamer@inframe
+      \sectionpage
+    \else
+      \frame[plain,c]{\sectionpage}
+    \fi
+  }
+}
+\newlength{\metropolis@progressonsectionpage}
+\setbeamertemplate{progress bar in section page}{
+  \setlength{\metropolis@progressonsectionpage}{%
+    \textwidth * \ratio{\insertframenumber pt}{\inserttotalframenumber pt}%
+  }%
+  \begin{tikzpicture}
+    \draw[bg, fill=bg] (0,0) rectangle (\textwidth, 0.4pt);
+    \draw[fg, fill=fg] (0,0) rectangle (\metropolis@progressonsectionpage, 0.4pt);
+  \end{tikzpicture}%
+}
+\def\inserttotalframenumber{100}
+\newlength{\@metropolis@blockskip}
+\setbeamertemplate{block begin}{%
+  \vspace*{1ex}
+  \begin{beamercolorbox}[%
+    ht=2.4ex,
+    dp=1ex,
+    leftskip=\@metropolis@blockskip,
+    rightskip=\@metropolis@blockskip]{block title}
+\usebeamerfont*{block title}\insertblocktitle\texttt{\textbf{:\hspace{-.2em}.}}%
+  \end{beamercolorbox}%
+  \vspace*{-1pt}
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[%
+    dp=1ex,
+    leftskip=\@metropolis@blockskip,
+    rightskip=\@metropolis@blockskip,
+    vmode]{block body}%
+}
+\setbeamertemplate{block end}{%
+  \end{beamercolorbox}
+  \vspace*{0.2ex}
+}
+\setbeamertemplate{block alerted begin}{%
+  \vspace*{1ex}
+  \begin{beamercolorbox}[%
+    ht=2.4ex,
+    dp=1ex,
+    leftskip=\@metropolis@blockskip,
+    rightskip=\@metropolis@blockskip]{block title}
+\usebeamerfont*{block title}\insertblocktitle\usebeamercolor[fg]{block title alerted}\texttt{\textbf{:\hspace{-.2em}.}}%
+  \end{beamercolorbox}%
+  \vspace*{-1pt}
+  \usebeamerfont{block body alerted}%
+  \begin{beamercolorbox}[%
+    dp=1ex,
+    leftskip=\@metropolis@blockskip,
+    rightskip=\@metropolis@blockskip,
+    vmode]{block body}%
+}
+\setbeamertemplate{block alerted end}{%
+  \end{beamercolorbox}
+  \vspace*{0.2ex}
+}
+\setbeamertemplate{block example begin}{%
+  \vspace*{1ex}
+  \begin{beamercolorbox}[%
+    ht=2.4ex,
+    dp=1ex,
+    leftskip=\@metropolis@blockskip,
+    rightskip=\@metropolis@blockskip]{block title example}
+      \usebeamerfont*{block title example}\insertblocktitle%
+  \end{beamercolorbox}%
+  \vspace*{-1pt}
+  \usebeamerfont{block body example}%
+  \begin{beamercolorbox}[%
+    dp=1ex,
+    leftskip=\@metropolis@blockskip,
+    rightskip=\@metropolis@blockskip,
+    vmode]{block body}%
+}
+\setbeamertemplate{block example end}{%
+  \end{beamercolorbox}
+  \vspace*{0.2ex}
+}
+\setbeamertemplate{itemize items}{\textbullet}
+\setbeamertemplate{caption label separator}{: }
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{footnote}{%
+  \parindent 0em\noindent%
+  \raggedright
+  \usebeamercolor{footnote}\hbox to 0.8em{\hfil\insertfootnotemark}\insertfootnotetext\par%
+}
+\setlength{\parskip}{0.5em}
+\linespread{1.15}
+\define@key{beamerframe}{c}[true]{% centered
+  \beamer@frametopskip=0pt plus 1fill\relax%
+  \beamer@framebottomskip=0pt plus 1fill\relax%
+  \beamer@frametopskipautobreak=0pt plus .4\paperheight\relax%
+  \beamer@framebottomskipautobreak=0pt plus .6\paperheight\relax%
+  \def\beamer@initfirstlineunskip{}%
+}
+\@metropolis@inner@setdefaults
+\ProcessPgfPackageOptions{/metropolis/inner}
+\endinput
+%%
+%% End of file `beamerinnerthememetropolis.sty'.

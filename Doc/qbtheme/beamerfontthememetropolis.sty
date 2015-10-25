@@ -1,1 +1,56 @@
-/home/sguelton/sources/mtheme/beamerfontthememetropolis.sty
+%%
+%% This is file `beamerfontthememetropolis.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% beamerfontthememetropolis.dtx  (with options: `package')
+%% ---------------------------------------------------------------------------
+%% Copyright 2015 Matthias Vogelgesang and the LaTeX community. A full list of
+%% contributors can be found at
+%% 
+%%     https://github.com/matze/mtheme/graphs/contributors
+%% 
+%% and the original template was based on the HSRM theme by Benjamin Weiss.
+%% 
+%% This work is licensed under a Creative Commons Attribution-ShareAlike 4.0
+%% International License (https://creativecommons.org/licenses/by-sa/4.0/).
+%% ---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerfontthememetropolis}[2015/06/12 Metropolis font theme]
+\RequirePackage[no-math]{fontspec}
+\defaultfontfeatures{Mapping=tex-text}
+\setsansfont[BoldItalicFont={Fira Sans Italic},%
+             ItalicFont={Fira Sans Light Italic},%
+             BoldFont={Fira Sans}]{Fira Sans Light}
+\setmonofont{Fira Mono}
+\newfontfamily\ExtraLight{Fira Sans ExtraLight}
+\newfontfamily\Light{Fira Sans Light}
+\newfontfamily\Book{Fira Sans}
+\newfontfamily\Medium{Fira Sans Medium}
+\AtBeginEnvironment{tabular}{%
+    \setsansfont[BoldFont={Fira Sans},%
+                 Numbers={Monospaced}]{Fira Sans Light}%
+    }
+\setbeamerfont{title}{family=\Book, size=\Large, shape=\bf}
+\setbeamerfont{author}{family=\ExtraLight, size=\small}
+\setbeamerfont{date}{family=\ExtraLight, size=\small}
+\setbeamerfont{section title}{family=\Book, size=\Large, shape=\bf}
+\setbeamerfont{block title}{family=\Book, size=\normalsize}
+\setbeamerfont{block title alerted}{family=\Book,size=\normalsize}
+\setbeamerfont{subtitle}{family=\Light, size=\fontsize{12}{14}}
+\setbeamerfont{frametitle}{family=\Book, size=\large, shape=\bf}
+\setbeamerfont{framesubtitle}{family=\Book, size=\normalsize, shape=\bf}
+\setbeamerfont{caption}{size=\small}
+\setbeamerfont{caption name}{family=\Book}
+\setbeamerfont{description item}{family=\Book}
+\setbeamerfont{page number in head/foot}{size=\scriptsize}
+\setbeamerfont{bibliography entry author}{family=\Light, size=\normalsize}
+\setbeamerfont{bibliography entry title}{family=\Book, size=\normalsize}
+\setbeamerfont{bibliography entry location}{family=\Light, size=\normalsize}
+\setbeamerfont{bibliography entry note}{family=\Light, size=\small}
+\linespread{1.15}
+
+\endinput
+%%
+%% End of file `beamerfontthememetropolis.sty'.

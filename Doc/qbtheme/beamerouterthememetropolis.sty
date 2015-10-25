@@ -1,1 +1,143 @@
-/home/sguelton/sources/mtheme/beamerouterthememetropolis.sty
+%%
+%% This is file `beamerouterthememetropolis.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% beamerouterthememetropolis.dtx  (with options: `package')
+%% ---------------------------------------------------------------------------
+%% Copyright 2015 Matthias Vogelgesang and the LaTeX community. A full list of
+%% contributors can be found at
+%% 
+%%     https://github.com/matze/mtheme/graphs/contributors
+%% 
+%% and the original template was based on the HSRM theme by Benjamin Weiss.
+%% 
+%% This work is licensed under a Creative Commons Attribution-ShareAlike 4.0
+%% International License (https://creativecommons.org/licenses/by-sa/4.0/).
+%% ---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerouterthememetropolis}[2015/06/12 Metropolis outer theme]
+\RequirePackage{etoolbox}
+\RequirePackage{calc}
+\RequirePackage{pgfopts}
+\pgfkeys{
+  /metropolis/outer/numbering/.cd,
+    .is choice,
+    none/.code=\setbeamertemplate{frame numbering}[none],
+    counter/.code=\setbeamertemplate{frame numbering}[counter],
+    fraction/.code=\setbeamertemplate{frame numbering}[fraction],
+}
+\pgfkeys{
+  /metropolis/outer/progressbar/.cd,
+    .is choice,
+    none/.code={%
+      \setbeamertemplate{headline}[plain]
+      \setbeamertemplate{frametitle}[plain]
+      \setbeamertemplate{footline}[plain]
+    },
+    head/.code={\pgfkeys{/metropolis/outer/progressbar=none}
+      \addtobeamertemplate{headline}{}{\usebeamertemplate*{progress bar in head/foot}}
+    },
+    frametitle/.code={\pgfkeys{/metropolis/outer/progressbar=none}
+      \addtobeamertemplate{frametitle}{}{\usebeamertemplate*{progress bar in head/foot}}
+    },
+    foot/.code={\pgfkeys{/metropolis/outer/progressbar=none}
+      \addtobeamertemplate{footline}{}{\usebeamertemplate*{progress bar in head/foot}}
+    },
+}
+\pgfkeys{
+  /metropolis/outer/frametitleformat/.cd,
+    .is choice,
+    regular/.code={%
+       \renewcommand{\@metropolis@frametitleformat}{}%
+       \renewcommand{\@metropolis@frametitlestrut}{%
+           \rule{0pt}{\heightof{ABCDEFGHIJKLMNOPQRSTUVWXYZ}}
+       }
+       },
+    lowercase/.code={%
+       \renewcommand{\@metropolis@frametitleformat}{}%
+       \renewcommand{\@metropolis@frametitlestrut}{%
+           \rule{0pt}{\heightof{ABCDEFGHIJKLMNOPQRSTUVWXYZ}}
+       }
+       },
+    uppercase/.code={%
+       \renewcommand{\@metropolis@frametitleformat}{}%
+       \renewcommand{\@metropolis@frametitlestrut}{%
+           \rule{0pt}{\heightof{ABCDEFGHIJKLMNOPQRSTUVWXYZ}}
+       }
+       },
+}
+\newcommand{\@metropolis@outer@setdefaults}{
+  \pgfkeys{/metropolis/outer/.cd,
+    numbering=counter,
+    progressbar=none,
+    frametitleformat=lowercase,
+  }
+}
+\setbeamertemplate{navigation symbols}{}
+\defbeamertemplate{frame numbering}{none}{}
+\defbeamertemplate{frame numbering}{counter}{\insertframenumber}
+\defbeamertemplate{frame numbering}{fraction}{
+  \insertframenumber/\inserttotalframenumber
+}
+\defbeamertemplate{headline}{plain}{}
+\defbeamertemplate{footline}{plain}{%
+  \begin{beamercolorbox}[wd=\textwidth, sep=3ex]{footline}%
+    \hfill%
+    \usebeamerfont{page number in head/foot}%
+    \usebeamertemplate*{frame numbering}
+  \end{beamercolorbox}%
+}
+\def\@metropolis@frametitleformat#1{#1}
+\patchcmd{\beamer@@frametitle}
+  {\beamer@ifempty{#2}{}{%
+      \gdef\insertframetitle{{#2\ifnum\beamer@autobreakcount>0\relax{}\space\usebeamertemplate*{frametitle continuation}\fi}}%
+    \gdef\beamer@frametitle{#2}%
+    \gdef\beamer@shortframetitle{#1}%
+    }}
+  {\beamer@ifempty{#2}{}{%
+      \gdef\insertframetitle{{\@metropolis@frametitleformat{#2}\ifnum\beamer@autobreakcount>0\relax{}\space\usebeamertemplate*{frametitle continuation}\fi}}%
+    \gdef\beamer@frametitle{#2}%
+    \gdef\beamer@shortframetitle{#1}%
+    }}
+  {}
+  {\PackageError{beamerouterthememetropolis}{Patching frame title failed.}}
+\newlength{\@metropolis@frametitlestrut}
+\defbeamertemplate{frametitle}{plain}{%
+  \nointerlineskip%
+  \begin{beamercolorbox}[%
+      wd=\paperwidth,%
+      sep=1ex,%
+    ]{frametitle}%
+  \@metropolis@frametitlestrut\insertframetitle\@metropolis@frametitlestrut%
+  \end{beamercolorbox}%
+  \nointerlineskip%
+  \vspace{-.3ex}
+  \pgfdeclarehorizontalshading{mytopshade}{.3ex}{color(0pt)=(mLightGreen); color(\paperwidth)=(mLightBrown)}%
+  \begin{beamercolorbox}[%
+      wd=\paperwidth,%
+      sep=0ex,%
+    ]{frametitle}%
+  \pgfuseshading{mytopshade}
+  \end{beamercolorbox}%
+  \usebeamercolor[fg]{framesubtitle}\normalsize{\insertframesubtitle}%
+}
+\newlength{\metropolis@progressinheadfoot}
+\setbeamertemplate{progress bar in head/foot}{
+  \nointerlineskip
+  \setlength{\metropolis@progressinheadfoot}{%
+    \paperwidth * \ratio{\insertframenumber pt}{\inserttotalframenumber pt}%
+  }%
+  \begin{beamercolorbox}[wd=\paperwidth]{progress bar in head/foot}
+    \begin{tikzpicture}
+      \draw[bg, fill=bg] (0,0) rectangle (\paperwidth, 0.4pt);
+      \draw[fg, fill=fg] (0,0) rectangle (\metropolis@progressinheadfoot, 0.4pt);
+    \end{tikzpicture}%
+  \end{beamercolorbox}
+}
+\@metropolis@outer@setdefaults
+\ProcessPgfPackageOptions{/metropolis/outer}
+\endinput
+%%
+%% End of file `beamerouterthememetropolis.sty'.

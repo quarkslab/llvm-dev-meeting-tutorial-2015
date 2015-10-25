@@ -1,1 +1,103 @@
-/home/sguelton/sources/mtheme/beamerthemem.sty
+%%
+%% This is file `beamerthemem.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% beamerthemem.dtx  (with options: `package')
+%% ---------------------------------------------------------------------------
+%% Copyright 2015 Matthias Vogelgesang and the LaTeX community. A full list of
+%% contributors can be found at
+%% 
+%%     https://github.com/matze/mtheme/graphs/contributors
+%% 
+%% and the original template was based on the HSRM theme by Benjamin Weiss.
+%% 
+%% This work is licensed under a Creative Commons Attribution-ShareAlike 4.0
+%% International License (https://creativecommons.org/licenses/by-sa/4.0/).
+%% ---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{beamerthemem}[2015/06/12 Metropolis Beamer theme]
+\RequirePackage{etoolbox}
+\RequirePackage{pgfopts}
+\RequirePackage{ifxetex}
+\RequirePackage{ifluatex}
+\newcommand{\metroset}[1]{\pgfkeys{/metropolis/.cd,#1}}
+\pgfkeys{/metropolis/.cd,
+  .search also={
+    /metropolis/inner,
+    /metropolis/outer,
+    /metropolis/color,
+  },
+  block/.code=\pgfkeysalso{
+    inner/block=#1,
+    color/block=#1,
+  },
+}
+\pgfkeys{
+  /metropolis/plaintitleformat/.cd,
+    .is choice,
+    regular/.code=\renewcommand{\@metropolis@plaintitleformat}{#1},
+    lowercase/.code={%
+    },
+    uppercase/.code={%
+    },
+}
+\pgfkeys{
+  /metropolis/everytitleformat/.code=\pgfkeysalso{
+      inner/titleformat=#1,
+      inner/sectiontitleformat=#1,
+      outer/frametitleformat=#1,
+      plaintitleformat=#1,
+    }
+}
+\pgfkeys{/metropolis/.cd,
+  usetitleprogressbar/.code=\pgfkeysalso{outer/progressbar=frametitle},
+  noslidenumbers/.code=\pgfkeysalso{outer/numbering=none},
+  usetotalslideindicator/.code=\pgfkeysalso{outer/numbering=fraction},
+  nosectionslide/.code=\pgfkeysalso{inner/sectionpage=none},
+  darkcolors/.code=\pgfkeysalso{color/background=dark},
+  blockbg/.code=\pgfkeysalso{color/block=fill, inner/block=fill},
+}
+\newcommand{\@metropolis@setdefaults}{
+  \pgfkeys{/metropolis/.cd,
+    plaintitleformat=lowercase,
+  }
+}
+\useinnertheme{metropolis}
+\useoutertheme{metropolis}
+\usecolortheme{metropolis}
+\ifboolexpr{bool {xetex} or bool {luatex}}{
+  \usefonttheme{metropolis}
+}{
+  \PackageWarning{beamerthemem}{%
+    You need to compile with XeLaTeX or LuaLaTeX to use the Fira fonts.
+  }
+}
+\AtEndPreamble{%
+  \@ifpackageloaded{pgfplots}{%
+    \RequirePackage{pgfplotsthemetol}
+  }{}
+}
+\def\@metropolis@plaintitleformat#1{#1}
+\newcommand{\plain}[2][]{%
+  \begingroup
+    \setbeamercolor{background canvas}{
+      use=palette primary,
+      parent=palette primary
+    }
+    \begin{frame}[c]{#1}
+      \begin{center}
+        \usebeamercolor[fg]{palette primary}
+        \usebeamerfont{section title}
+        \@metropolis@plaintitleformat{#2}
+      \end{center}
+    \end{frame}
+  \endgroup
+}
+\newcommand{\mreducelistspacing}{\vspace{-\topsep}}
+\@metropolis@setdefaults
+\ProcessPgfOptions{/metropolis}
+\endinput
+%%
+%% End of file `beamerthemem.sty'.
