@@ -84,7 +84,7 @@ public:
         size_t ReachableValuesCount = ReachableValues.size();
         if (ReachableValuesCount) {
           // Yes! pick a random one
-          std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount - 1);
+          std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount-1);
           auto Iter = ReachableValues.begin();
           std::advance(Iter, Dist(RNG));
           DEBUG(errs() << "picking: " << **Iter

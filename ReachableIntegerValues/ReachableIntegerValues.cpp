@@ -19,7 +19,7 @@ using namespace llvm;
 ReachableIntegerValuesPass::ReachableIntegerValuesPass() : FunctionPass(ID) {}
 
 bool ReachableIntegerValuesPass::runOnFunction(Function &F) {
-  // The same instance of the analyse is created and registered, then used
+  // The same instance of the analysis is created and registered, then used
   // repetitively, so we must clear its state each time we enter runOnFunction
   ReachableIntegerValuesMap.clear();
 
