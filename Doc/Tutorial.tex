@@ -571,9 +571,9 @@
                 \draw[->,thick] (loop) to [out=-25,in=25,looseness=6] (loop);
                 \draw[->,thick] (loop) -- (tail);
 
-                \node<2-> [right of=head, xshift=8em] {$V = \varnothing, D = \{ v_0 \}$};
-                \node<3-> [right of=loop, xshift=8em] {$V = \{ v_0 \}, D = \{ v_1 \}$};
-                \node<4-> [right of=tail, xshift=8em] {$V = \{ v_0, v_1 \}, D = \{ v_2 \}$};
+                \uncover<2->{\node [right of=head, xshift=8em] {$V = \varnothing, D = \{ v_0 \}$};}
+                \uncover<3->{\node [right of=loop, xshift=8em] {$V = \{ v_0 \}, D = \{ v_1 \}$};}
+                \uncover<4->{\node [right of=tail, xshift=8em] {$V = \{ v_0, v_1 \}, D = \{ v_2 \}$};}
             \end{tikzpicture}
         \end{block}
 
