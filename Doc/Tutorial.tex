@@ -131,6 +131,16 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    \begin{frame}{LLVM 3.7 --- Recources}
+        \begin{center}
+            \url{https://github.com/quarkslab/llvm-dev-meeting-tutorial-2015}
+        \end{center}
+    \end{frame}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     \begin{frame}{LLVM 3.7 --- Tutorial}
         \begin{center}
             \textbf{\Large Press Start Button}
@@ -660,9 +670,80 @@
         \begin{alertblock}{Bonus}
             \begin{itemize}
                 \item Declare extra options
+                \item Fuzz your passes
             \end{itemize}
         \end{alertblock}
 
+    \end{frame}
+
+    \begin{frame}{stage 4 --- Duplicate basic Blocks}
+        \begin{columns}[T]
+                \begin{column}{.5\textwidth}
+                    \centering
+                    \structure{Before}\\\vspace{1em}
+                    \begin{tikzpicture}[node distance=3em]
+                        \node (head) {$BB_0$};
+                        \node (cont) [below of=head] {$BB_1$};
+                        \draw[->, thick] (head) -- (cont);
+                    \end{tikzpicture}
+                \end{column}
+                \begin{column}{.5\textwidth}
+                    \centering
+                    \structure{After}\\\vspace{1em}
+                    \begin{tikzpicture}[node distance=3em]
+                        \node (cond) {branch};
+                        \node (clone0) [below of=cond, xshift=-2em] {$BB_0^0$};
+                        \node (clone1) [below of=cond, xshift=+2em] {$BB_0^1$};
+                        \node (merge) [below of=clone1, xshift=-2em] {merge};
+                        \node (cont) [below of=merge] {$BB_1$};
+                        \draw[->, thick] (cond) -- (clone0);
+                        \draw[->, thick] (cond) -- (clone1);
+                        \draw[->, thick] (clone0) -- (merge);
+                        \draw[->, thick] (clone1) -- (merge);
+                        \draw[->, thick] (merge) -- (cont);
+                    \end{tikzpicture}
+                \end{column}
+        \end{columns}
+
+    \end{frame}
+
+    \begin{frame}{stage 4 --- Problems}
+        \begin{itemize}
+            \item Cloning \Code{basicBlock}s and iterating over a function loops
+            \item Cloning an instruction creates a new \Code{Value}
+            \item Cloning several instructions requires a remapping
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{stage 4 --- Messings with $\varphi$s}
+        \begin{enumerate}
+            \item Forge a random condition using result of \Code{ReachableIntegerValues}
+            \item Clone a \Code{BasicBlock}
+            \item Merge \Code{Value}s from the clones using $\varphi$ nodes
+        \end{enumerate}
+        $\Rightarrow$ Using a \Code{FunctionPass}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 4 --- Forge a Random Branch}
+
+        \structure{Get analysis result}\\
+        \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={69-70},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \end{minipage}
+
+        \structure{Pick a random reachable value}\\
+        \hspace{-2em}%
+        \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={83-85},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \end{minipage}
+
+        \structure{Random condition}\\
+        \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={121-124},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \end{minipage}
     \end{frame}
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -80,8 +80,7 @@ public:
         size_t ReachableValuesCount = ReachableValues.size();
         if (ReachableValuesCount) {
           // Yes! pick a random one
-          std::uniform_int_distribution<size_t> Dist(0,
-                                                     ReachableValuesCount - 1);
+          std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount - 1);
           auto Iter = ReachableValues.begin();
           std::advance(Iter, Dist(RNG));
           DEBUG(errs() << "picking: " << **Iter
@@ -120,7 +119,9 @@ private:
     IRBuilder<> Builder(BBHead);
 
     Value *Cond = Builder.CreateIsNull(
-        ReMapper.count(ContextValue) ? ReMapper[ContextValue] : ContextValue);
+        ReMapper.count(ContextValue) ?
+        ReMapper[ContextValue] :
+        ContextValue);
 
     // the goals is to got from
     // BB --> TERM
