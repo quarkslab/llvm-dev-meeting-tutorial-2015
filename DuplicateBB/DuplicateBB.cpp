@@ -30,9 +30,13 @@ STATISTIC(DuplicateBBCount, "The # of duplicated blocks");
 
 // Similar to MBA's
 static llvm::cl::opt<Ratio> DuplicateBBRatio{
-    "duplicate-bb-ratio", llvm::cl::desc("Only apply the duplicate basic block "
-                                         "pass on <ratio> of the basic blocks"),
-    llvm::cl::value_desc("ratio"), llvm::cl::init(1.), llvm::cl::Optional};
+    "duplicate-bb-ratio",
+    llvm::cl::desc("Only apply the duplicate basic block "
+                   "pass on <ratio> of the basic blocks"),
+    llvm::cl::value_desc("ratio"),
+    llvm::cl::init(1.),
+    llvm::cl::Optional
+};
 
 using namespace llvm;
 
@@ -162,7 +166,8 @@ private:
         // the original basic block
         // we want them to refer to the cloned one! The mappings are used for
         // this
-        Instruction *ThenClone = Instr.clone(), *ElseClone = Instr.clone();
+        Instruction *ThenClone = Instr.clone(),
+                    *ElseClone = Instr.clone();
 
         RemapInstruction(ThenClone, ThenVMap, RF_IgnoreMissingEntries);
         ThenClone->insertBefore(ThenTerm);

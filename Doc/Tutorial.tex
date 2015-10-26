@@ -131,7 +131,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \begin{frame}{LLVM 3.7 --- Recources}
+    \begin{frame}{LLVM 3.7 --- Resources}
         \begin{center}
             \url{https://github.com/quarkslab/llvm-dev-meeting-tutorial-2015}
         \end{center}
@@ -171,8 +171,8 @@
                 \centering
                 \item[]\alert{\bf Stage Selection}\vspace{1em}
                 \item[] Adding a new Front-End
-                \item[] In-Tree Pass Developpment
-                \item[] \textbf{\texttt{>~}Out-of-Tree Pass Developpment\texttt{~<}}
+                \item[] In-Tree Pass Development
+                \item[] \textbf{\texttt{>~}Out-of-Tree Pass Development\texttt{~<}}
                 \item[] Adding a new Back-End
             \end{itemize}
 
@@ -200,7 +200,7 @@
 
         \begin{block}{Goals}
             \begin{itemize}
-                \item Use LLVM cmake support
+                \item Use LLVM Cmake support
                 \item Build a minimal pass
             \end{itemize}
 
@@ -220,7 +220,7 @@
           dir tree
           [Tutorial
               [CMakeLists.txt\only<2>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake configuration file}]
-              [cmake\only<3>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake auxillary files}
+              [cmake\only<3>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake auxiliary files}
                 [Python.cmake]
               ]
               [MBA\only<4>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ Our first pass}
@@ -671,6 +671,7 @@
             \begin{itemize}
                 \item Declare extra options
                 \item Fuzz your passes
+                \item Add a support library
             \end{itemize}
         \end{alertblock}
 
@@ -709,13 +710,13 @@
 
     \begin{frame}{stage 4 --- Problems}
         \begin{itemize}
-            \item Cloning \Code{basicBlock}s and iterating over a function loops
+            \item Cloning \Code{BasicBlock}s and iterating over a function loops
             \item Cloning an instruction creates a new \Code{Value}
             \item Cloning several instructions requires a remapping
         \end{itemize}
     \end{frame}
 
-    \begin{frame}{stage 4 --- Messings with $\varphi$s}
+    \begin{frame}{stage 4 --- Messing with $\varphi$s}
         \begin{enumerate}
             \item Forge a random condition using result of \Code{ReachableIntegerValues}
             \item Clone a \Code{BasicBlock}
@@ -729,22 +730,123 @@
         \structure{Get analysis result}\\
         \begin{minipage}{\textwidth}
         \scriptsize
-        \lstinputlisting[breaklines=false,linerange={69-70},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \lstinputlisting[breaklines=false,linerange={73-74},language=c++]{../DuplicateBB/DuplicateBB.cpp}
         \end{minipage}
 
         \structure{Pick a random reachable value}\\
         \hspace{-2em}%
         \begin{minipage}{\textwidth}
         \scriptsize
-        \lstinputlisting[breaklines=false,linerange={83-85},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \lstinputlisting[breaklines=false,linerange={87-89},language=c++]{../DuplicateBB/DuplicateBB.cpp}
         \end{minipage}
 
         \structure{Random condition}\\
         \begin{minipage}{\textwidth}
         \scriptsize
-        \lstinputlisting[breaklines=false,linerange={121-124},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \lstinputlisting[breaklines=false,linerange={125-128},language=c++]{../DuplicateBB/DuplicateBB.cpp}
         \end{minipage}
     \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 4 --- Messing with Clones}
+        \structure{Cloning an instruction}\\
+        \hspace{-2em}%
+        \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={169-170},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \end{minipage}
+
+        \structure{Remap operands}\\
+        \hspace{-2em}%
+        \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={172-172},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \end{minipage}
+
+        \structure{Manual $\varphi$ creation}\\
+        \hspace{-2em}%
+        \begin{minipage}{\textwidth}
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={183-185},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        \end{minipage}
+
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 4 --- Bonus}
+        \framesubtitle{Fuzz your creation}
+        \begin{alertblock}{Using \Command{csmith}}
+            \begin{enumerate}
+                \item Pick \url{http://embed.cs.utah.edu/csmith/}
+                \item Write configuration file, e.g. \Command{fuzz.cfg}:
+                    {
+                        \scriptsize
+\begin{lstlisting}[language=bash]
+clang -O2
+clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
+\end{lstlisting}
+                    }
+                \item Run generation!
+                    {
+                        \scriptsize
+\begin{lstlisting}[language=bash]
+% CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
+\end{lstlisting}
+                    }
+            \end{enumerate}
+        \end{alertblock}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 4 --- Bonus}
+        \framesubtitle{Add extra options}
+        \begin{alertblock}{Control the obfuscation ratio}
+        {
+        \scriptsize
+        \lstinputlisting[breaklines=false,linerange={32-39},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+        }
+        \end{alertblock}
+        \vspace{.1em}
+        \structure{$\Rightarrow$} Need to specialize \Code{llvm:cl} for the \Code{Ratio} class.
+    \end{frame}
+
+
+    \begin{frame}{stage 4 --- Bonus}
+        \framesubtitle{Add a support library}
+        \begin{alertblock}{\Code{CMakeLists.txt}}
+            \begin{minipage}{\textwidth}
+            \scriptsize
+            \lstinputlisting[breaklines=false,linerange={3-3},language=bash]{../DuplicateBB/CMakeLists.txt}
+            \end{minipage}
+        \end{alertblock}
+
+        \begin{alertblock}{Specialize \Code{llvm::cl::parser}}
+            \begin{minipage}{\textwidth}
+            \scriptsize
+            \lstinputlisting[breaklines=false,linerange={22-25},language=c++]{../include/Utils.h}
+            \end{minipage}
+        \end{alertblock}
+    \end{frame}
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    \begin{frame}{Final Boss}
+        \only<1>{
+        \begin{center}
+            \includegraphics[width=.4\textwidth]{dragon_book.jpg}
+        \end{center}
+        }
+        \only<2>{
+        \begin{tikzpicture}
+            \node[rotate=-45] at (3,2) {\includegraphics[width=.2\textwidth]{dragon_book.jpg}};
+            \node[rotate=-80] at (5,3.5) {\includegraphics[width=.1\textwidth]{dragon_book.jpg}};
+            \node[rotate=-105] at (6,4.4) {\includegraphics[width=.05\textwidth]{dragon_book.jpg}};
+            \node[rotate=-125] at (7,5.2) {\includegraphics[width=.025\textwidth]{dragon_book.jpg}};
+            \node[rotate=-45] at (3,2) {\includegraphics[width=.2\textwidth]{dragon_book.jpg}};
+            \node at (0,0) {\includegraphics[width=.5\textwidth]{dragon_punch.png}};
+        \end{tikzpicture}
+        }
+
+    \end{frame}
+
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -764,7 +866,7 @@
             \centering
             \item[]\alert{\bf Insert Coins}\vspace{.1em}
             \item[]\texttt{Exit}
-            \item[]\texttt{\hyperlink{Frame1}{> Play Again <}}
+            \item[]\texttt{\hyperlink{page.1}{> Play Again <}}
         \end{itemize}
 
     \end{frame}
