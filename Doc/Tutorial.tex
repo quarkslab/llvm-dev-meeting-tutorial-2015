@@ -311,7 +311,7 @@
         \end{alertblock}
         {
             \footnotesize
-            \lstinputlisting[linerange={121-126},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[linerange={130-138},language=c++]{../MBA/MBA.cpp}
         }
     \end{frame}
 
@@ -347,7 +347,7 @@
 
 {
 \scriptsize
-\lstinputlisting[linerange={130-136,139-140},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
+\lstinputlisting[linerange={142-147,151-152},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
 }
     \end{frame}
 
@@ -420,13 +420,15 @@
     \frametitle{stage2 --- \texttt{runOnBasicBlock++}}
     Instruction substitution:
     \begin{itemize}
-        \item Use \Code{Value::replaceAllUsesWith} (safe)
-        \item Could be \Code{llvm::ReplaceInstWithValue} (but not inplace)
+		\item Use \Code{Value::replaceAllUsesWith}, but the old instruction has
+			to be removed afterwards (safest)
+		\item Use \Code{llvm::ReplaceInstWithValue} that does the job for you
+			(need to be careful on iterator validity)
     \end{itemize}
-    \hspace{-5em}%
+    \hspace{-6em}%
     \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={102-103},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={114-114},language=c++]{../MBA/MBA.cpp}
     \end{minipage}
     \end{frame}
 
@@ -476,7 +478,7 @@
         \hspace{-5.5em}%
         \begin{minipage}{\textwidth}
             \footnotesize
-            \lstinputlisting[breaklines=false,linerange={105-106},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[breaklines=false,linerange={117-118},language=c++]{../MBA/MBA.cpp}
         \end{minipage}
 
         \structure{Collect them!}
@@ -500,7 +502,7 @@
         \hspace{-6em}%
         \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={104-104},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={101-101},language=c++]{../MBA/MBA.cpp}
         \end{minipage}
         \end{alertblock}
         \begin{block}{Collect the trace}
