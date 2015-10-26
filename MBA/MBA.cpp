@@ -73,7 +73,7 @@ public:
     bool modified = false;
     std::uniform_real_distribution<double> Dist(0., 1.);
 
-	auto& BIL = BB.getInstList();
+    auto& BIL = BB.getInstList();
     for (auto IIT = BIL.begin(); IIT != BIL.end(); ++IIT) {
       Instruction& Inst = *IIT;
       // not a dynamic_cast!
@@ -100,17 +100,17 @@ public:
 
             DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
 
-			// ReplaceInstWithValue basically does this (`IIT' is passed by reference):
-			// IIT->replaceAllUsesWith(NewValue);
-			// IIT = BB.getInstList.erase(IIT);
-			//
-			// `erase' returns a valid iterator of the instruction before the
-			// one that has been erased. This makes the validator valid, and
-			// since BIL.end() is fetch at each loop iteration, `IIT' is
-			// compared against a valid iterator.
-			//
-			// see also
-			// http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
+            // ReplaceInstWithValue basically does this (`IIT' is passed by reference):
+            // IIT->replaceAllUsesWith(NewValue);
+            // IIT = BB.getInstList.erase(IIT);
+            //
+            // `erase' returns a valid iterator of the instruction before the
+            // one that has been erased. This makes the validator valid, and
+            // since BIL.end() is fetch at each loop iteration, `IIT' is
+            // compared against a valid iterator.
+            //
+            // see also
+            // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
             ReplaceInstWithValue(BB.getInstList(), IIT, NewValue);
 
             modified = true;
