@@ -194,7 +194,10 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \begin{frame}{Level Up}
         \begin{center}
-            \textbf{\Large Stage 1}
+            \tikz\node[opacity=1.0]{\textbf{\Large Stage 1 --- Build Setup}};\\
+            \tikz\node[opacity=0.5]{\Large Stage 2};\\
+            \tikz\node[opacity=0.5]{\Large Stage 3};\\
+            \tikz\node[opacity=0.5]{\Large Stage 4};\\
         \end{center}
     \end{frame}
 
@@ -360,7 +363,10 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \begin{frame}{Level Up}
         \begin{center}
-            \textbf{\Large Stage 2}
+            \tikz\node[opacity=0.5]{\Large Stage 1};\\
+            \tikz\node[opacity=1.0]{\textbf{\Large Stage 2 --- Simple Pass}};\\
+            \tikz\node[opacity=0.5]{\Large Stage 3};\\
+            \tikz\node[opacity=0.5]{\Large Stage 4};\\
         \end{center}
     \end{frame}
 
@@ -429,8 +435,6 @@
     \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
     Instruction substitution:
     \begin{itemize}
-		\item Use \Code{Value::replaceAllUsesWith}, but the old instruction has
-			to be removed afterwards (safest)
 		\item Use \Code{llvm::ReplaceInstWithValue} that does the job for you
 			(need to be careful on iterator validity)
     \end{itemize}
@@ -457,13 +461,6 @@
                 \item[$\Rightarrow$] Requires LLVM with \Code{-DLLVM\_INSTALL\_UTILS}
             \end{itemize}
         \end{block}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 2 --- test sample}
-    \hspace{-1em}\begin{minipage}{\textwidth}
-            \footnotesize
-            \lstinputlisting[breaklines=true,language=c]{../Tests/MBA.c}
-        \end{minipage}
     \end{frame}
 
     \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
@@ -531,7 +528,10 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \begin{frame}{Level Up}
         \begin{center}
-            \textbf{\Large Stage 3}
+            \tikz\node[opacity=0.5]{\Large Stage 1};\\
+            \tikz\node[opacity=0.5]{\Large Stage 2};\\
+            \tikz\node[opacity=1.]{\textbf{\Large Stage 3 --- Analyse}};\\
+            \tikz\node[opacity=0.5]{\Large Stage 4};\\
         \end{center}
     \end{frame}
 
@@ -672,7 +672,10 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \begin{frame}{Level Up}
         \begin{center}
-            \textbf{\Large Stage 4}
+            \tikz\node[opacity=0.5]{\Large Stage 1};\\
+            \tikz\node[opacity=0.5]{\Large Stage 2};\\
+            \tikz\node[opacity=0.5]{\Large Stage 3};\\
+            \tikz\node[opacity=1.0]{\textbf{\Large Stage 4 --- Complex Pass}};\\
         \end{center}
     \end{frame}
 
@@ -682,8 +685,8 @@
 
         \begin{block}{Goals}
             \begin{itemize}
+                \item Use $\varphi$ nodes
                 \item Modify the Control Flow Graph (CFG)
-                \item Syndicate code in a third-party library
             \end{itemize}
 
         \end{block}
@@ -698,7 +701,7 @@
 
     \end{frame}
 
-    \begin{frame}{stage 4 --- Duplicate basic Blocks}
+    \begin{frame}{stage 4 --- Duplicate Basic Blocks}
         \begin{columns}[T]
                 \begin{column}{.5\textwidth}
                     \centering
@@ -735,15 +738,6 @@
             \item Cloning an instruction creates a new \Code{Value}
             \item Cloning several instructions requires a remapping
         \end{itemize}
-    \end{frame}
-
-    \begin{frame}{stage 4 --- Messing with $\varphi$s}
-        \begin{enumerate}
-            \item Forge a random condition using result of \Code{ReachableIntegerValues}
-            \item Clone a \Code{BasicBlock}
-            \item Merge \Code{Value}s from the clones using $\varphi$ nodes
-        \end{enumerate}
-        $\Rightarrow$ Using a \Code{FunctionPass}
     \end{frame}
 
     \begin{frame}[containsverbatim]{stage 4 --- Forge a Random Branch}
