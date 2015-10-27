@@ -2,8 +2,6 @@
 ; RUN: opt -load %bindir/lib/LLVMMBA${MOD_EXT} -mba -mba-ratio=0 %s -S | FileCheck -check-prefix=CHECK-OFF %s
 
 ; CHECK-LABEL: @foo(
-; CHECK-ON: mul
-; CHECK-OFF-NOT: mul
 define i32 @foo(i32 %i, i32 %j) {
 entry:
   br label %while.cond
@@ -13,6 +11,8 @@ while.cond:
   %0 = xor i32 %i.addr.0, %j
   %1 = and i32 %0, 255
   %cmp = icmp eq i32 %1, 0
+; CHECK-ON: mul
+; CHECK-OFF-NOT: mul
   %add = add i32 %i.addr.0, %j
   br i1 %cmp, label %while.end, label %while.cond
 
