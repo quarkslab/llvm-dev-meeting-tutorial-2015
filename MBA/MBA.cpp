@@ -74,12 +74,13 @@ public:
     std::uniform_real_distribution<double> Dist(0., 1.);
 
     auto& BIL = BB.getInstList();
-    for (auto IIT = BIL.begin(); IIT != BIL.end(); ++IIT) {
+    for (auto IIT = BIL.begin(), IE = BIL.end();
+         IIT != IE; ++IIT)
+    {
       Instruction& Inst = *IIT;
       // not a dynamic_cast!
-      // see
-      // http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
-      if (auto *BinOp = dyn_cast<BinaryOperator>(&Inst)) {
+      // see http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
+      if (auto*BinOp=dyn_cast<BinaryOperator>(&Inst)) {
 
         if (Dist(RNG) < MBARatio.getValue().getRatio()) {
 
@@ -92,7 +93,8 @@ public:
             IRBuilder<> Builder(BinOp);
 
             Value *NewValue = Builder.CreateAdd(
-              Builder.CreateXor(BinOp->getOperand(0), BinOp->getOperand(1)),
+              Builder.CreateXor(BinOp->getOperand(0),
+                                BinOp->getOperand(1)),
               Builder.CreateMul(ConstantInt::get(BinOp->getType(), 2),
                 Builder.CreateAnd(BinOp->getOperand(0),
                 BinOp->getOperand(1)))
@@ -111,8 +113,8 @@ public:
             //
             // see also
             // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
-            ReplaceInstWithValue(BB.getInstList(), IIT, NewValue);
-
+            ReplaceInstWithValue(BB.getInstList(),
+                                 IIT, NewValue);
             modified = true;
             // update statistics!
             ++MBACount;

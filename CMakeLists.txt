@@ -17,7 +17,7 @@ list(APPEND CMAKE_PREFIX_PATH
 find_package(LLVM REQUIRED CONFIG)
 
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
-include(HandleLLVMOptions) # load additional configuration stuff
+include(HandleLLVMOptions) # load additional config
 include(AddLLVM) # used to add our own modules
 
 # propagate LLVM-specific variables to this project

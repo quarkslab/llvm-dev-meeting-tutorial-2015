@@ -7,7 +7,9 @@
 \usepackage{pacman}
 \usefonttheme{structurebold}
 \setbeamercovered{transparent}
+\metroset{block=fill}
 
+\setbeamersize{text margin left=8pt,text margin right=8pt}
 
 \usepackage{listings}
 \definecolor{darkgreen}{rgb}{0,0.6,0}
@@ -242,7 +244,7 @@
         \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
         \begin{block}{LLVM Detection}
             \footnotesize
-            \lstinputlisting[firstline=5, lastline=11,language=bash,morekeywords={endif,message}]{../CMakeLists.txt}
+            \lstinputlisting[breaklines=true,firstline=5, lastline=11,language=bash,morekeywords={endif,message}]{../CMakeLists.txt}
         \end{block}
     \end{frame}
 
@@ -284,14 +286,14 @@
 {
 \footnotesize
 \begin{lstlisting}[language=bash]
-% opt -load LLVMMBA.so -mba input.ll -S
+% opt -load LLVMMBA.so -mba foo.ll -S
 \end{lstlisting}
 }
                 \item Or by clang (provided an extra setup)
 {
 \footnotesize
 \begin{lstlisting}[language=bash]
-% clang -Xclang -load -Xclang LLVMMBA.so input.c -c
+% clang -Xclang -load -Xclang LLVMMBA.so foo.c -c
 \end{lstlisting}
 }
             \end{itemize}
@@ -303,7 +305,7 @@
         \frametitle{stage 1 --- \texttt{MBA.cpp}}
         {
             \footnotesize
-            \lstinputlisting[linerange={24-24,27-27,46-46,53-53,59-59,61-61,72-73,123-125},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[linerange={24-24,27-27,46-46,53-53,59-59,61-61,72-73,125-127},language=c++]{../MBA/MBA.cpp}
         }
     \end{frame}
 
@@ -318,7 +320,7 @@
         \end{alertblock}
         {
             \footnotesize
-            \lstinputlisting[breaklines=true,linerange={130-138},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[breaklines=true,linerange={132-140},language=c++]{../MBA/MBA.cpp}
         }
     \end{frame}
 
@@ -348,13 +350,13 @@
         \begin{alertblock}{Make the pass usable from \Command{clang}}
             \begin{itemize}
                 \item Automatically loaded in \Command{clang}'s optimization flow: {\footnotesize\lstinline|clang -Xclang -load -Xclang|}
-                \item Several extension point exist
+                \item Several extension points exist
             \end{itemize}
         \end{alertblock}
 
 {
 \scriptsize
-\lstinputlisting[linerange={142-147,151-152},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
+\lstinputlisting[linerange={144-149,153-154},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
 }
     \end{frame}
 
@@ -414,7 +416,7 @@
     \end{itemize}
     {
         \footnotesize
-        \lstinputlisting[breaklines=true,linerange={76-76,82-82,86-87},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=true,linerange={76-79,83-83,87-88},language=c++]{../MBA/MBA.cpp}
     }
     \end{frame}
 
@@ -424,10 +426,10 @@
     \begin{itemize}
         \item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
     \end{itemize}
-    \hspace{-5em}%
+    \hspace{-4.5em}%
     \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={89-96},language=c++]{../MBA/MBA.cpp}
+        \footnotesize
+        \lstinputlisting[breaklines=false,linerange={94-102},language=c++]{../MBA/MBA.cpp}
     \end{minipage}
     \end{frame}
 
@@ -438,10 +440,10 @@
 		\item Use \Code{llvm::ReplaceInstWithValue} that does the job for you
 			(need to be careful on iterator validity)
     \end{itemize}
-    \hspace{-6em}%
+    \hspace{-4em}%
     \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={114-114},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={116-117},language=c++]{../MBA/MBA.cpp}
     \end{minipage}
     \end{frame}
 
@@ -464,7 +466,7 @@
     \end{frame}
 
     \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
-    \hspace{-1em}\begin{minipage}{\textwidth}
+    \begin{minipage}{\textwidth}
             \footnotesize
             \lstinputlisting[breaklines=true,linerange={1-7},language=llvm]{../Tests/MBA.ll}
             \dots
@@ -484,7 +486,7 @@
         \hspace{-5.5em}%
         \begin{minipage}{\textwidth}
             \footnotesize
-            \lstinputlisting[breaklines=false,linerange={117-118},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[breaklines=false,linerange={119-120},language=c++]{../MBA/MBA.cpp}
         \end{minipage}
 
         \structure{Collect them!}
@@ -504,11 +506,12 @@
         \footnotesize
         \lstinputlisting[breaklines=true,linerange={15-16},language=c++]{../MBA/MBA.cpp}
         }
+        \vspace{-1em}
         Add a trace:\\
         \hspace{-6em}%
         \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={101-101},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={103-103},language=c++]{../MBA/MBA.cpp}
         \end{minipage}
         \end{alertblock}
         \begin{block}{Collect the trace}
@@ -520,7 +523,7 @@
         \end{lstlisting}
         }
         \end{block}
-        Everything disapears under \Code{-DNDEBUG}
+        %Everything disapears under \Code{-DNDEBUG}
     \end{frame}
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -582,7 +585,7 @@
     \begin{frame}[containsverbatim]{stage 3 --- Building an Analysis}
         \begin{alertblock}{Pass Registration}
         {
-        \footnotesize
+        \scriptsize
         \lstinputlisting[breaklines=false,linerange={91-96},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
         }
         \end{alertblock}
@@ -616,7 +619,7 @@
             \begin{enumerate}
                 \item PM runs each required analysis (if not cached)
                 \item PM runs the Pass entry point
-                \item the Pass calls \Code{getAnalysis<\dots>} to access the instance
+                \item The Pass calls \Code{getAnalysis<\dots>} to access the instance
             \end{enumerate}
         \end{alertblock}
     \end{frame}
@@ -743,21 +746,19 @@
     \begin{frame}[containsverbatim]{stage 4 --- Forge a Random Branch}
 
         \structure{Get analysis result}\\
-        \hspace{-2em}%
         \begin{minipage}{\textwidth}
         \scriptsize
         \lstinputlisting[breaklines=false,linerange={73-74},language=c++]{../DuplicateBB/DuplicateBB.cpp}
         \end{minipage}
 
         \structure{Pick a random reachable value}\\
-        \hspace{-5em}%
+        \hspace{-3.35em}%
         \begin{minipage}{\textwidth}
         \scriptsize
         \lstinputlisting[breaklines=false,linerange={87-89},language=c++]{../DuplicateBB/DuplicateBB.cpp}
         \end{minipage}
 
         \structure{Random condition}\\
-        \hspace{-2em}%
         \begin{minipage}{\textwidth}
         \scriptsize
         \lstinputlisting[breaklines=false,linerange={125-128},language=c++]{../DuplicateBB/DuplicateBB.cpp}
@@ -788,29 +789,29 @@
 
     \end{frame}
 
-    \begin{frame}[containsverbatim]{stage 4 --- Bonus}
-        \framesubtitle{Fuzz your creation}
-        \begin{alertblock}{Using \Command{csmith}}
-            \begin{enumerate}
-                \item Pick \url{http://embed.cs.utah.edu/csmith/}
-                \item Write configuration file, e.g. \Command{fuzz.cfg}:
-                    {
-                        \scriptsize
-\begin{lstlisting}[language=bash]
-clang -O2
-clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
-\end{lstlisting}
-                    }
-                \item Run generation!
-                    {
-                        \scriptsize
-\begin{lstlisting}[language=bash]
-% CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
-\end{lstlisting}
-                    }
-            \end{enumerate}
-        \end{alertblock}
-    \end{frame}
+%     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
+%         \framesubtitle{Fuzz your creation}
+%         \begin{alertblock}{Using \Command{csmith}}
+%             \begin{enumerate}
+%                 \item Pick \url{http://embed.cs.utah.edu/csmith/}
+%                 \item Write a configuration file, e.g. \Command{fuzz.cfg}:
+%                     {
+%                         \scriptsize
+% \begin{lstlisting}[language=bash]
+% clang -O2
+% clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
+% \end{lstlisting}
+%                     }
+%                 \item Run generation!
+%                     {
+%                         \scriptsize
+% \begin{lstlisting}[language=bash]
+% % CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
+% \end{lstlisting}
+%                     }
+%             \end{enumerate}
+%         \end{alertblock}
+%     \end{frame}
 
     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
         \framesubtitle{Add extra options}
@@ -828,17 +829,17 @@ clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
     \begin{frame}{stage 4 --- Bonus}
         \framesubtitle{Add a support library}
         \begin{alertblock}{\Code{CMakeLists.txt}}
-            \begin{minipage}{\textwidth}
+        {
             \scriptsize
-            \lstinputlisting[breaklines=false,linerange={3-3},language=bash]{../DuplicateBB/CMakeLists.txt}
-            \end{minipage}
+            \lstinputlisting[breaklines=false,linerange={3-3},language=bash,morekeywords={target_link_libraries}]{../DuplicateBB/CMakeLists.txt}
+        }
         \end{alertblock}
 
         \begin{alertblock}{Specialize \Code{llvm::cl::parser}}
-            \begin{minipage}{\textwidth}
+        {
             \scriptsize
             \lstinputlisting[breaklines=false,linerange={22-25},language=c++]{../include/Utils.h}
-            \end{minipage}
+        }
         \end{alertblock}
     \end{frame}
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -874,7 +875,7 @@ clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
         \begin{itemize}
             \centering
             \item[]\includegraphics[height=2em]{logo.png}
-            \item[]\alert{\bf Creditz}\vspace{-1em}
+            \item[]\alert{\bf Creditz}
             \item[]\texttt{Serge~Guelton~<sguelton@quarkslab.com>}
             \item[]\texttt{Adrien Guinet <aguinet@quarkslab.com>}
         \end{itemize}

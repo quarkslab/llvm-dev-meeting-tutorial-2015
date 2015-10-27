@@ -26,7 +26,7 @@
   /metropolis/inner/block/.cd,
     .is choice,
     transparent/.code=\setlength{\@metropolis@blockskip}{0ex},
-    fill/.code=\setlength{\@metropolis@blockskip}{1ex},
+    fill/.code=\setlength{\@metropolis@blockskip}{2ex},
 }
 \pgfkeys{
   /metropolis/inner/titleformat/.cd,
@@ -178,13 +178,13 @@
 \def\inserttotalframenumber{100}
 \newlength{\@metropolis@blockskip}
 \setbeamertemplate{block begin}{%
-  \vspace*{1ex}
+  \vspace*{1ex}%
   \begin{beamercolorbox}[%
     ht=2.4ex,
     dp=1ex,
     leftskip=\@metropolis@blockskip,
     rightskip=\@metropolis@blockskip]{block title}
-\usebeamerfont*{block title}\insertblocktitle\texttt{\textbf{:\hspace{-.2em}.}}%
+\usebeamerfont*{block title}\insertblocktitle%
   \end{beamercolorbox}%
   \vspace*{-1pt}
   \usebeamerfont{block body}%
@@ -205,7 +205,7 @@
     dp=1ex,
     leftskip=\@metropolis@blockskip,
     rightskip=\@metropolis@blockskip]{block title}
-\usebeamerfont*{block title}\insertblocktitle\usebeamercolor[fg]{block title alerted}\texttt{\textbf{:\hspace{-.2em}.}}%
+\usebeamerfont*{block title}\insertblocktitle%
   \end{beamercolorbox}%
   \vspace*{-1pt}
   \usebeamerfont{block body alerted}%
