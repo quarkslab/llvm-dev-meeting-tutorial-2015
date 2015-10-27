@@ -1,5 +1,5 @@
 // RUN: clang %s -O2 -S -emit-llvm -o %t.ll
-// RUN: opt -load %bindir/MBA/LLVMMBA${MOD_EXT} -mba %t.ll -S -o %t0.ll
+// RUN: opt -load %bindir/lib/LLVMMBA${MOD_EXT} -mba %t.ll -S -o %t0.ll
 // RUN: FileCheck %s < %t0.ll
 // RUN: clang %t0.ll -o %t0
 // RUN: %t0 -42 42
