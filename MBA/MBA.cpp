@@ -95,9 +95,11 @@ public:
             Value *NewValue = Builder.CreateAdd(
               Builder.CreateXor(BinOp->getOperand(0),
                                 BinOp->getOperand(1)),
-              Builder.CreateMul(ConstantInt::get(BinOp->getType(), 2),
-                Builder.CreateAnd(BinOp->getOperand(0),
-                BinOp->getOperand(1)))
+              Builder.CreateMul(
+                ConstantInt::get(BinOp->getType(), 2),
+                Builder.CreateAnd(
+                  BinOp->getOperand(0),
+                  BinOp->getOperand(1)))
             );
 
             DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");

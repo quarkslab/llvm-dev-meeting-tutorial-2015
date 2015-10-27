@@ -305,7 +305,7 @@
         \frametitle{stage 1 --- \texttt{MBA.cpp}}
         {
             \footnotesize
-            \lstinputlisting[linerange={24-24,27-27,46-46,53-53,59-59,61-61,72-73,125-127},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[linerange={24-24,27-27,46-46,53-53,59-59,61-61,72-73,127-129},language=c++]{../MBA/MBA.cpp}
         }
     \end{frame}
 
@@ -320,7 +320,7 @@
         \end{alertblock}
         {
             \footnotesize
-            \lstinputlisting[breaklines=true,linerange={132-140},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[breaklines=true,linerange={134-142},language=c++]{../MBA/MBA.cpp}
         }
     \end{frame}
 
@@ -356,7 +356,7 @@
 
 {
 \scriptsize
-\lstinputlisting[linerange={144-149,153-154},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
+\lstinputlisting[linerange={146-151,155-156},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
 }
     \end{frame}
 
@@ -414,10 +414,11 @@
         \item Iterate over a \Code{BasicBlock}
         \item Use LLVM's \Code{dyn\_cast}
     \end{itemize}
-    {
+	\hspace{-1em}
+    \begin{minipage}{\textwidth}
         \footnotesize
         \lstinputlisting[breaklines=true,linerange={76-79,83-83,87-88},language=c++]{../MBA/MBA.cpp}
-    }
+    \end{minipage}
     \end{frame}
 
     \begin{frame}[containsverbatim]
@@ -426,10 +427,10 @@
     \begin{itemize}
         \item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
     \end{itemize}
-    \hspace{-4.5em}%
+    \hspace{-4em}%
     \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={94-102},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={95-103},language=c++]{../MBA/MBA.cpp}
     \end{minipage}
     \end{frame}
 
@@ -443,7 +444,7 @@
     \hspace{-4em}%
     \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={116-117},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={118-119},language=c++]{../MBA/MBA.cpp}
     \end{minipage}
     \end{frame}
 
@@ -486,7 +487,7 @@
         \hspace{-5.5em}%
         \begin{minipage}{\textwidth}
             \footnotesize
-            \lstinputlisting[breaklines=false,linerange={119-120},language=c++]{../MBA/MBA.cpp}
+            \lstinputlisting[breaklines=false,linerange={121-122},language=c++]{../MBA/MBA.cpp}
         \end{minipage}
 
         \structure{Collect them!}
@@ -511,7 +512,7 @@
         \hspace{-6em}%
         \begin{minipage}{\textwidth}
         \footnotesize
-        \lstinputlisting[breaklines=false,linerange={103-103},language=c++]{../MBA/MBA.cpp}
+        \lstinputlisting[breaklines=false,linerange={105-105},language=c++]{../MBA/MBA.cpp}
         \end{minipage}
         \end{alertblock}
         \begin{block}{Collect the trace}
