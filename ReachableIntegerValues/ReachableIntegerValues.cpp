@@ -48,7 +48,7 @@ bool ReachableIntegerValuesPass::runOnFunction(Function &F) {
 
   DEBUG(errs() << "In Function:\n" << F);
 
-  while (not NodesToProcess.empty()) {
+  while (!NodesToProcess.empty()) {
     auto *NodeToProcess = NodesToProcess.back();
     NodesToProcess.pop_back();
     DEBUG(errs() << "processing BB " << NodeToProcess->getBlock() << "\n");
