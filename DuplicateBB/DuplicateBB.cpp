@@ -8,35 +8,31 @@
  * home-grown analysis.
  */
 
-/* for debug support */
-#define DEBUG_TYPE "duplicate-bb"
-#include "llvm/Support/Debug.h"
+#include "ReachableIntegerValues.h"
+#include "Utils.h"
 
-/* for stat support */
 #include "llvm/ADT/Statistic.h"
-STATISTIC(DuplicateBBCount, "The # of duplicated blocks");
-
-#include "llvm/Pass.h"
+#include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Module.h"
-#include "llvm/IR/Function.h"
+#include "llvm/Pass.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/RandomNumberGenerator.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 
-#include "ReachableIntegerValues.h"
-#include "Utils.h"
+/* for debug support */
+#define DEBUG_TYPE "duplicate-bb"
+
+/* for stat support */
+STATISTIC(DuplicateBBCount, "The # of duplicated blocks");
 
 // Similar to MBA's
 static llvm::cl::opt<Ratio> DuplicateBBRatio{
-    "duplicate-bb-ratio",
-    llvm::cl::desc("Only apply the duplicate basic block "
-                   "pass on <ratio> of the basic blocks"),
-    llvm::cl::value_desc("ratio"),
-    llvm::cl::init(1.),
-    llvm::cl::Optional
-};
+    "duplicate-bb-ratio", llvm::cl::desc("Only apply the duplicate basic block "
+                                         "pass on <ratio> of the basic blocks"),
+    llvm::cl::value_desc("ratio"), llvm::cl::init(1.), llvm::cl::Optional};
 
 using namespace llvm;
 
@@ -78,26 +74,27 @@ public:
       if (BB.isLandingPad())
         continue;
 
-      if (Dist(RNG) <= Ratio) {
-        // Do we have any integer value reachable from this BB?
-        auto const &ReachableValues = RIV.lookup(&BB);
-        size_t ReachableValuesCount = ReachableValues.size();
-        if (ReachableValuesCount) {
-          // Yes! pick a random one
-          std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount-1);
-          auto Iter = ReachableValues.begin();
-          std::advance(Iter, Dist(RNG));
-          DEBUG(errs() << "picking: " << **Iter
-                       << " as random context value\n");
-          // Store the binding and a BB to duplicate and the context variable
-          // used to hide it
-          Targets.emplace_back(&BB, *Iter);
+      if (Dist(RNG) > Ratio)
+        continue;
 
-          ++DuplicateBBCount;
-        } else {
-          DEBUG(errs() << "no context value found\n");
-        }
+      // Do we have any integer value reachable from this BB?
+      auto const &ReachableValues = RIV.lookup(&BB);
+      size_t ReachableValuesCount = ReachableValues.size();
+      if (!ReachableValuesCount) {
+        DEBUG(errs() << "no context value found\n");
+        continue;
       }
+
+      // Yes! pick a random one
+      std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount - 1);
+      auto Iter = ReachableValues.begin();
+      std::advance(Iter, Dist(RNG));
+      DEBUG(errs() << "picking: " << **Iter << " as random context value\n");
+      // Store the binding and a BB to duplicate and the context variable
+      // used to hide it
+      Targets.emplace_back(&BB, *Iter);
+
+      ++DuplicateBBCount;
     }
 
     // Run the actual duplication
@@ -123,11 +120,9 @@ private:
     IRBuilder<> Builder(BBHead);
 
     Value *Cond = Builder.CreateIsNull(
-        ReMapper.count(ContextValue) ?
-        ReMapper[ContextValue] :
-        ContextValue);
+        ReMapper.count(ContextValue) ? ReMapper[ContextValue] : ContextValue);
 
-    // the goals is to got from
+    // the goals is to get from
     // BB --> TERM
     // to
     //        BB Clone
@@ -151,47 +146,40 @@ private:
     // add them to the true/false branch
     // and update their use on the fly, through values stored in then_mapping
     // and else_mapping
-    std::vector<Instruction *> TailInstructions(Tail->size());
-    std::transform(Tail->begin(), Tail->end(), TailInstructions.begin(),
-                   [](Instruction &I) { return &I; });
-
-    for (Instruction *I : TailInstructions) {
-      Instruction &Instr = *I;
+    for (Instruction &Instr : *Tail) {
       assert(not isa<PHINode>(&Instr) and
              "phi nodes have already been filtered out");
 
       // We have a different processing of the last instruction
-      if (not isa<TerminatorInst>(&Instr)) {
-        // once the instruction is cloned, its operand still hold reference to
-        // the original basic block
-        // we want them to refer to the cloned one! The mappings are used for
-        // this
-        Instruction *ThenClone = Instr.clone(),
-                    *ElseClone = Instr.clone();
-
-        RemapInstruction(ThenClone, ThenVMap, RF_IgnoreMissingEntries);
-        ThenClone->insertBefore(ThenTerm);
-        ThenVMap[&Instr] = ThenClone;
-
-        RemapInstruction(ElseClone, ElseVMap, RF_IgnoreMissingEntries);
-        ElseClone->insertBefore(ElseTerm);
-        ElseVMap[&Instr] = ElseClone;
-
-        // instruction that produce a value should not require a slot in the
-        // TAIL *but* they can be used from the context, so just always
-        // generate a PHI, and let further optimization do the cleaning
-        PHINode *Phi = PHINode::Create(ThenClone->getType(), 2);
-        Phi->addIncoming(ThenClone, ThenTerm->getParent());
-        Phi->addIncoming(ElseClone, ElseTerm->getParent());
-        TailVMap[&Instr] = Phi;
-
-        ReMapper[&Instr] = Phi;
-
-        ReplaceInstWithInst(&Instr, Phi);
-
-      } else {
+      if (isa<TerminatorInst>(&Instr)) {
         RemapInstruction(&Instr, TailVMap, RF_IgnoreMissingEntries);
+        continue;
       }
+      // once the instruction is cloned, its operand still hold reference to
+      // the original basic block
+      // we want them to refer to the cloned one! The mappings are used for
+      // this
+      Instruction *ThenClone = Instr.clone(), *ElseClone = Instr.clone();
+
+      RemapInstruction(ThenClone, ThenVMap, RF_IgnoreMissingEntries);
+      ThenClone->insertBefore(ThenTerm);
+      ThenVMap[&Instr] = ThenClone;
+
+      RemapInstruction(ElseClone, ElseVMap, RF_IgnoreMissingEntries);
+      ElseClone->insertBefore(ElseTerm);
+      ElseVMap[&Instr] = ElseClone;
+
+      // instruction that produce a value should not require a slot in the
+      // TAIL *but* they can be used from the context, so just always
+      // generate a PHI, and let further optimization do the cleaning
+      PHINode *Phi = PHINode::Create(ThenClone->getType(), 2);
+      Phi->addIncoming(ThenClone, ThenTerm->getParent());
+      Phi->addIncoming(ElseClone, ElseTerm->getParent());
+      TailVMap[&Instr] = Phi;
+
+      ReMapper[&Instr] = Phi;
+
+      ReplaceInstWithInst(&Instr, Phi);
     }
   }
 };

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 # LLVM detection part
-# The user is supposed to set this to a valid llvm3.7 install root
+# The user is supposed to set this to a valid llvm 3.7 install root
 set(LLVM_ROOT "" CACHE PATH "Root of LLVM install.")
 
 # A bit of a sanity check:
@@ -36,7 +36,7 @@ add_subdirectory(MBA)
 add_subdirectory(ReachableIntegerValues)
 add_subdirectory(DuplicateBB)
 
-# testing part relies on lit, dependance is required to avoid cmake bloat
+# testing part relies on lit, dependency is required to avoid cmake bloat
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Python)
 find_python_module(lit REQUIRED)
@@ -51,4 +51,6 @@ endif()
 # provide the make check target based on lit
 add_custom_target(check
     COMMAND ${PYTHON_EXECUTABLE} -m lit.main
-            "${CMAKE_CURRENT_BINARY_DIR}/Tests" -v)
+            "${CMAKE_CURRENT_BINARY_DIR}/Tests" -v
+    DEPENDS LLVMMBA LLVMReachableIntegerValues LLVMDuplicateBB
+)
