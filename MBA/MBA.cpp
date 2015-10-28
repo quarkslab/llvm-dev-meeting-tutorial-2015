@@ -85,9 +85,11 @@ public:
       // see http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
       auto *BinOp = dyn_cast<BinaryOperator>(&Inst);
       if (!BinOp)
+         // The instruction is not a binary operator, we don't handle it.
         continue;
 
       if (Dist(RNG) > MBARatio.getRatio())
+        // Probabilistic replacement, skip if we are not in the threshold.
         continue;
 
           unsigned Opcode = BinOp->getOpcode();
