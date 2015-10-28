@@ -151,12 +151,10 @@ private:
     // add them to the true/false branch
     // and update their use on the fly, through values stored in then_mapping
     // and else_mapping
-    std::vector<Instruction *> TailInstructions(Tail->size());
-    std::transform(Tail->begin(), Tail->end(), TailInstructions.begin(),
-                   [](Instruction &I) { return &I; });
-
-    for (Instruction *I : TailInstructions) {
-      Instruction &Instr = *I;
+    for (auto IIT = Tail->begin(), IE = Tail->end();
+         IIT != IE; ++IIT)
+    {
+      Instruction &Instr = *IIT;
       assert(not isa<PHINode>(&Instr) and
              "phi nodes have already been filtered out");
 
@@ -187,8 +185,10 @@ private:
 
         ReMapper[&Instr] = Phi;
 
-        ReplaceInstWithInst(&Instr, Phi);
-
+        // As we modify the instructions as we go,
+        // use the iterator version of ReplaceInstWithInst
+        ReplaceInstWithInst(Tail->getInstList(),
+                            IIT, Phi);
       } else {
         RemapInstruction(&Instr, TailVMap, RF_IgnoreMissingEntries);
       }

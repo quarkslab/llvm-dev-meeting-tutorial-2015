@@ -142,755 +142,820 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \begin{frame}{LLVM 3.7 --- Tutorial}
-        \begin{center}
-            \textbf{\Large Press Start Button}
-        \end{center}
-    \end{frame}
+    \begin{frame}{Instruction Booklet}
 
-    \begin{frame}{LLVM 3.7 --- Prerequisite}
-        \begin{center}
-            \textbf{\Large Please Load LLVM3.7}
-        \end{center}
-    \end{frame}
-
-    \begin{frame}{LLVM 3.7}
-        \begin{center}
-            \begin{itemize}
-                \centering
-                \item[]\alert{\bf Select difficulty}\vspace{1em}
-                \item[] \textbf{\texttt{>~}Easy\texttt{~<}}
-                \item[] Hard
-                \item[] Nightmare
-            \end{itemize}
-        \end{center}
-    \end{frame}
-
-    \begin{frame}{LLVM 3.7}
-
-            \begin{itemize}
-                \centering
-                \item[]\alert{\bf Stage Selection}\vspace{1em}
-                \item[] Adding a new Front-End
-                \item[] In-Tree Pass Development
-                \item[] \textbf{\texttt{>~}Out-of-Tree Pass Development\texttt{~<}}
-                \item[] Adding a new Back-End
-            \end{itemize}
-
-    \end{frame}
-
-    \begin{frame}{LLVM 3.7}
-
-            \begin{itemize}
-                \centering
-                \item[]\alert{\bf OS Selection}\vspace{1em}
-                \item[] \textbf{\texttt{>~}Linux\texttt{~<}}
-                \item[] OSX
-                \item[] \tikz\node[opacity=0.5]{Windows};
-            \end{itemize}
-
-    \end{frame}
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \begin{frame}{Level Up}
-        \begin{center}
-            \tikz\node[opacity=1.0]{\textbf{\Large Stage 1 --- Build Setup}};\\
-            \tikz\node[opacity=0.5]{\Large Stage 2};\\
-            \tikz\node[opacity=0.5]{\Large Stage 3};\\
-            \tikz\node[opacity=0.5]{\Large Stage 4};\\
-        \end{center}
-    \end{frame}
-
-    \begin{frame}{stage 1}
-
-        \framesubtitle{Setup a Proper CMake Project}
-
-        \begin{block}{Goals}
-            \begin{itemize}
-                \item Use LLVM Cmake support
-                \item Build a minimal pass
-            \end{itemize}
-
-        \end{block}
-
-        \begin{alertblock}{Bonus}
-            \begin{itemize}
-                \item Setup a minimal test driver
-                \item Make the pass compatible with \Command{clang}
-            \end{itemize}
-        \end{alertblock}
-
-    \end{frame}
-
-    \begin{frame}{stage 1 --- Directory Layout}
-    \begin{forest}
-          dir tree
-          [Tutorial
-              [CMakeLists.txt\only<2>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake configuration file}]
-              [cmake\only<3>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake auxiliary files}
-                [Python.cmake]
-              ]
-              [MBA\only<4>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ Our first pass}
-                  [CMakeLists.txt]
-                  [MBA.cpp]
-              ]
-          ]
-    \end{forest}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
-        \begin{block}{LLVM Detection}
-            \footnotesize
-            \lstinputlisting[breaklines=true,firstline=5, lastline=11,language=bash,morekeywords={endif,message}]{../CMakeLists.txt}
-        \end{block}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
-        \begin{block}{Load LLVM Config}
-            \footnotesize
-            \lstinputlisting[firstline=15, lastline=17,language=bash,morekeywords={list,find_package}]{../CMakeLists.txt}
-        \end{block}
-        \begin{block}{And more LLVM Stuff}
-            \footnotesize
-            \lstinputlisting[firstline=19, lastline=21,language=bash,morekeywords={list,include}]{../CMakeLists.txt}
-        \end{block}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
-        \begin{block}{Propagate LLVM setup to our project}
-            \footnotesize
-            \lstinputlisting[firstline=24, lastline=28,language=bash,morekeywords={add_definitions,include_directories},breaklines=true]{../CMakeLists.txt}
-        \end{block}
-
-        \begin{block}{Get Ready!}
-            \footnotesize
-            \lstinputlisting[firstline=35, lastline=35,language=bash,morekeywords={add_subdirectory}]{../CMakeLists.txt}
-        \end{block}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- \texttt{MBA/CMakeLists.txt}}
-        \begin{block}{Declare a Pass}
-            \footnotesize
-            \lstinputlisting[firstline=2, lastline=2,language=bash,morekeywords={add_llvm_loadable_module}]{../MBA/CMakeLists.txt}
-        \end{block}
-
-        \begin{alertblock}{1 Pass = 1 Dynamically Loaded Library}
-            \begin{itemize}
-                \item Passes are loaded by a pass driver: \textbf{\texttt{opt}}
-{
-\footnotesize
-\begin{lstlisting}[language=bash]
-% opt -load LLVMMBA.so -mba foo.ll -S
-\end{lstlisting}
-}
-                \item Or by clang (provided an extra setup)
-{
-\footnotesize
-\begin{lstlisting}[language=bash]
-% clang -Xclang -load -Xclang LLVMMBA.so foo.c -c
-\end{lstlisting}
-}
-            \end{itemize}
-        \end{alertblock}
-
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- \texttt{MBA.cpp}}
-        {
-            \footnotesize
-            \lstinputlisting[linerange={24-24,27-27,46-46,53-53,59-59,61-61,72-73,127-129},language=c++]{../MBA/MBA.cpp}
-        }
-    \end{frame}
-
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- \texttt{MBA.cpp}}
-        \begin{alertblock}{Registration Stuff}
-            \begin{itemize}
-                \item Only performs registration for \Command{opt} use!
-                \item Uses a static constructor\dots
-            \end{itemize}
-        \end{alertblock}
-        {
-            \footnotesize
-            \lstinputlisting[breaklines=true,linerange={134-142},language=c++]{../MBA/MBA.cpp}
-        }
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- Bonus Level}
-        \begin{alertblock}{Setup test infrastructure}
-            \begin{itemize}
-                \item Rely on \Command{lit}, LLVM's Integrated Tester
-                \item {\footnotesize
-\begin{lstlisting}[language=bash]
-% pip install --user lit
-\end{lstlisting}
-                    }
-            \end{itemize}
-        \end{alertblock}
-
-        \begin{block}{\texttt{CMakeLists.txt} update}
-{
-\scriptsize
-\lstinputlisting[linerange={40-42,51-54},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../CMakeLists.txt}
-}
-        \end{block}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-        \frametitle{stage 1 --- Bonus Level}
-        \begin{alertblock}{Make the pass usable from \Command{clang}}
-            \begin{itemize}
-                \item Automatically loaded in \Command{clang}'s optimization flow: {\footnotesize\lstinline|clang -Xclang -load -Xclang|}
-                \item Several extension points exist
-            \end{itemize}
-        \end{alertblock}
-
-{
-\scriptsize
-\lstinputlisting[linerange={146-151,155-156},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
-}
-    \end{frame}
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \begin{frame}{Level Up}
-        \begin{center}
-            \tikz\node[opacity=0.5]{\Large Stage 1};\\
-            \tikz\node[opacity=1.0]{\textbf{\Large Stage 2 --- Simple Pass}};\\
-            \tikz\node[opacity=0.5]{\Large Stage 3};\\
-            \tikz\node[opacity=0.5]{\Large Stage 4};\\
-        \end{center}
-    \end{frame}
-
-    \begin{frame}{stage 2}
-
-        \framesubtitle{Build a Simple Pass}
-
-        \begin{block}{Goals}
-            \begin{itemize}
-                \item Learn basic LLVM IR manipulations
-                \item Write a simple test case
-            \end{itemize}
-
-        \end{block}
-
-        \begin{alertblock}{Bonus}
-            \begin{itemize}
-                \item Collect statistics on your pass
-                \item Collect debug informations on your pass
-            \end{itemize}
-        \end{alertblock}
-
-    \end{frame}
-
-    \begin{frame}{stage 2 --- MBA}
-        \framesubtitle{Mixed Boolean Arithmetic}
-
-        \begin{alertblock}{Simple Instruction Selection}
-            Turns: $a + b$
-
-            Into: $(a \oplus b) + 2 \times (a \wedge b)$
-        \end{alertblock}
-
-        \begin{block}{Context}
-            \alert{$\Rightarrow$} Useful for code obfuscation
-        \end{block}
-
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-    \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
-    \begin{itemize}
-        \item Iterate over a \Code{BasicBlock}
-        \item Use LLVM's \Code{dyn\_cast} to check the instruction kind
-    \end{itemize}
-	\hspace{-1em}
-    \begin{minipage}{\textwidth}
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={76-79,83-83,87-88},language=c++]{../MBA/MBA.cpp}
-    \end{minipage}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-    \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
-    LLVM Instruction creation/insertion:
-    \begin{itemize}
-		\item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
-		\item Creates $(a \oplus b) + 2 \times (a \wedge b)$ 
-    \end{itemize}
-    \hspace{-4em}%
-    \begin{minipage}{\textwidth}
-        \footnotesize
-        \lstinputlisting[breaklines=false,linerange={95-103},language=c++]{../MBA/MBA.cpp}
-    \end{minipage}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]
-    \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
-    Instruction substitution:
-    \begin{itemize}
-		\item Use \Code{llvm::ReplaceInstWithValue} that does the job for you
-			(need to be careful on iterator validity)
-    \end{itemize}
-    \hspace{-4em}%
-    \begin{minipage}{\textwidth}
-        \footnotesize
-        \lstinputlisting[breaklines=false,linerange={118-119},language=c++]{../MBA/MBA.cpp}
-    \end{minipage}
-    \end{frame}
-
-    \begin{frame}{stage 2 --- Write a simple test}
-        \begin{alertblock}{\Command{lit} principles}
-            \begin{itemize}
-                \item One source file (say \texttt{.c} or \texttt{.ll}) per test case
-                \item Use comments to describe the test
-                \item Use substitution for test configuration
-            \end{itemize}
-        \end{alertblock}
-
-        \begin{block}{\Command{FileCheck} --- \Command{grep} on steroids!}
-            \begin{itemize}
-                \item Compares \Code{argv[1]} and \Code{stdin}
-                \item Reads check\textbf{s} from comments in \Code{argv[1]}
-                \item[$\Rightarrow$] Requires LLVM with \Code{-DLLVM\_INSTALL\_UTILS}
-            \end{itemize}
-        \end{block}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
-    \begin{minipage}{\textwidth}
-            \scriptsize
-            \lstinputlisting[breaklines=true,linerange={1-5},language=llvm]{../Tests/MBA.ll}
-            \dots
-            \lstinputlisting[breaklines=true,linerange={14-16},language=llvm]{../Tests/MBA.ll}
-            \dots
-            \lstinputlisting[breaklines=true,linerange={22-22},language=llvm]{../Tests/MBA.ll}
-        \end{minipage}
-    \end{frame}
-
-
-    \begin{frame}[containsverbatim]{stage 2 --- Bonus}
-        \framesubtitle{Collect Statistics}
-        \structure{How many substitutions have we done?}
-        {
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={21-22},language=c++]{../MBA/MBA.cpp}
-        }
-        \vspace{-1em}%
-        \hspace{-5.5em}%
-        \begin{minipage}{\textwidth}
-            \footnotesize
-            \lstinputlisting[breaklines=false,linerange={121-122},language=c++]{../MBA/MBA.cpp}
-        \end{minipage}
-
-        \structure{Collect them!}
-        {
-        \footnotesize
-\begin{lstlisting}[language=bash]
-% opt -load LLVMMBA.so -mba -stats ...
-\end{lstlisting}
-        }
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 2 --- Bonus}
-        \framesubtitle{Debug your pass}
-        \begin{alertblock}{\Code{DEBUG()} and \Code{DEBUG\_TYPE}}
-        Setup a guard:
-        {
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={15-16},language=c++]{../MBA/MBA.cpp}
-        }
-        \vspace{-1em}
-        Add a trace:\\
-        \hspace{-6em}%
-        \begin{minipage}{\textwidth}
-        \footnotesize
-        \lstinputlisting[breaklines=false,linerange={105-105},language=c++]{../MBA/MBA.cpp}
-        \end{minipage}
-        \end{alertblock}
-        \begin{block}{Collect the trace}
-        {
-        \footnotesize
-        \begin{lstlisting}[language=bash]
-% opt -O2 -mba -debug ... # verbose
-% opt -O2 -mba -debug-only=mba ... # selective
-        \end{lstlisting}
-        }
-        \end{block}
-        %Everything disapears under \Code{-DNDEBUG}
-    \end{frame}
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \begin{frame}{Level Up}
-        \begin{center}
-            \tikz\node[opacity=0.5]{\Large Stage 1};\\
-            \tikz\node[opacity=0.5]{\Large Stage 2};\\
-            \tikz\node[opacity=1.]{\textbf{\Large Stage 3 --- Analyse}};\\
-            \tikz\node[opacity=0.5]{\Large Stage 4};\\
-        \end{center}
-    \end{frame}
-
-    \begin{frame}{stage 3}
-
-        \framesubtitle{Build an Analysis}
-
-        \begin{block}{Goals}
-            \begin{itemize}
-                \item Use Dominator trees
-                \item Write a \Code{llvm::FunctionPass}
-                \item Describe dependencies
-            \end{itemize}
-        \end{block}
-
-        \begin{alertblock}{Bonus}
-            \begin{itemize}
-                \item Follow LLVM's guidelines
-            \end{itemize}
-        \end{alertblock}
-
-    \end{frame}
-
-    \begin{frame}{stage 3 --- ReachableIntegerValues}
-        \begin{alertblock}{Simple Module Analyse}
-            Create a mapping between a \Code{BasicBlock} and a set of \Code{Value}s that can be used in this block.
-        \end{alertblock}
-
-        \begin{block}{Algorithm}
-            $V = \text{Visible values}, D = \text{Defined Values}$\\\vspace{-.5em}\tikz\draw (0,0) -- (2,0);
-
-            \begin{tikzpicture}
-                \node[draw=blue] (head) {$v_0$ = ...};
-                \node[draw=blue] (loop) [below of=head] {$v_1$ = ...};
-                \node[draw=blue] (tail) [below of=loop] {$v_2$ = ...};
-                \draw[->,thick] (head) -- (loop);
-                \draw[->,thick] (loop) to [out=-25,in=25,looseness=6] (loop);
-                \draw[->,thick] (loop) -- (tail);
-
-                \uncover<2->{\node [right of=head, xshift=8em] {$V = \varnothing, D = \{ v_0 \}$};}
-                \uncover<3->{\node [right of=loop, xshift=8em] {$V = \{ v_0 \}, D = \{ v_1 \}$};}
-                \uncover<4->{\node [right of=tail, xshift=8em] {$V = \{ v_0, v_1 \}, D = \{ v_2 \}$};}
-            \end{tikzpicture}
-        \end{block}
-
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 3 --- Building an Analysis}
-        \begin{alertblock}{Pass Registration}
-        {
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={91-96},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
-        }
-        \end{alertblock}
-
-        \begin{block}{\texttt{CMakeLists.txt}}
-        {
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={1-1},language=c++]{../ReachableIntegerValues/CMakeLists.txt}
-        }
-        \end{block}
-
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 3 --- Analysis}
-
-        \begin{itemize}
-            \item Need to export the class declaration in a header
-            \item Need to load the analysis in \Command{opt} explicitly
-            \item Result of the analysis stored as a member variable
-        \end{itemize}
-
-        \structure{API}\\
-        {
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={14-16},language=c++]{../include/ReachableIntegerValues.h}
-        }
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 3 --- Make Result Available}
-        \begin{alertblock}{Dependency Processing}
-            \begin{enumerate}
-                \item PM runs each required analysis (if not cached)
-                \item PM runs the Pass entry point
-                \item The Pass calls \Code{getAnalysis<\dots>} to access the instance
-            \end{enumerate}
-        \end{alertblock}
-    \end{frame}
-
-
-    \begin{frame}[containsverbatim]{stage 3 --- Declare Dependencies}
-
-        \begin{alertblock}{Dependency on DominatorTree}
-        {
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={80-83},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
-        }
-        \end{alertblock}
-
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 3 --- \texttt{runOnFunction}}
-        \begin{alertblock}{Entry Point}
-        {
-        \footnotesize
-        \lstinputlisting[breaklines=true,linerange={21-21,24-24},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
-        \texttt{~~~//\dots init stuff}
-        \lstinputlisting[breaklines=true,linerange={43-44},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
-        \texttt{~~~//\dots fill the map}
-        \lstinputlisting[breaklines=true,linerange={73-74},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
-        }
-        \end{alertblock}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 3 --- Bonus}
-        \framesubtitle{LLVM's coding standard}
-
-        \alert{Optional}: You're working out-of tree.\\
-        But\dots
-        \begin{itemize}
-            \item Provides a common reference
-            \item Helps for visual consistency
-        \end{itemize}
-        {
-            \footnotesize
-\begin{lstlisting}[language=bash]
-% find . \( -name '*.cpp' -o -name '*.h' \) \
-    -exec clang-format-3.7 -i {} \;
-\end{lstlisting}
-        }
-        \url{http://llvm.org/docs/CodingStandards.html}
-
-    \end{frame}
-
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    \begin{frame}{Level Up}
-        \begin{center}
-            \tikz\node[opacity=0.5]{\Large Stage 1};\\
-            \tikz\node[opacity=0.5]{\Large Stage 2};\\
-            \tikz\node[opacity=0.5]{\Large Stage 3};\\
-            \tikz\node[opacity=1.0]{\textbf{\Large Stage 4 --- Complex Pass}};\\
-        \end{center}
-    \end{frame}
-
-    \begin{frame}{stage 4}
-
-        \framesubtitle{Write a Complex Pass}
-
-        \begin{block}{Goals}
-            \begin{itemize}
-                \item Use $\varphi$ nodes
-                \item Modify the Control Flow Graph (CFG)
-            \end{itemize}
-
-        \end{block}
-
-        \begin{alertblock}{Bonus}
-            \begin{itemize}
-                \item Declare extra options
-                \item Fuzz your passes
-                \item Add a support library
-            \end{itemize}
-        \end{alertblock}
-
-    \end{frame}
-
-    \begin{frame}{stage 4 --- Duplicate Basic Blocks}
         \begin{columns}[T]
-                \begin{column}{.5\textwidth}
-                    \centering
-                    \structure{Before}\\\vspace{1em}
-                    \begin{tikzpicture}[node distance=3em]
-                        \node (head) {$BB_0$};
-                        \node (cont) [below of=head] {$BB_1$};
-                        \draw[->, thick] (head) -- (cont);
-                    \end{tikzpicture}
-                \end{column}
-                \begin{column}{.5\textwidth}
-                    \centering
-                    \structure{After}\\\vspace{1em}
-                    \begin{tikzpicture}[node distance=3em]
-                        \node (cond) {branch};
-                        \node (clone0) [below of=cond, xshift=-2em] {$BB_0^0$};
-                        \node (clone1) [below of=cond, xshift=+2em] {$BB_0^1$};
-                        \node (merge) [below of=clone1, xshift=-2em] {merge};
-                        \node (cont) [below of=merge] {$BB_1$};
-                        \draw[->, thick] (cond) -- (clone0);
-                        \draw[->, thick] (cond) -- (clone1);
-                        \draw[->, thick] (clone0) -- (merge);
-                        \draw[->, thick] (clone1) -- (merge);
-                        \draw[->, thick] (merge) -- (cont);
-                    \end{tikzpicture}
-                \end{column}
+            \begin{column}{.5\textwidth}
+                \begin{tikzpicture}
+                    \node at (2.5,5) {Module};
+                    \draw (0,0) rectangle (5,5.5);
+
+                    \uncover<2->{
+                    \node at (2.5,4.) {Function};
+                    \draw (0.25,0.25) rectangle (4.75,2.25);
+                    \draw (0.25,2.5) rectangle (4.75,4.5);
+                    }
+
+                    \uncover<3->{
+                    \node at (1.475,1.5) {BB};
+                    \draw (0.5,.5) rectangle (2.45,2.);
+                    \draw (2.55,.5) rectangle (4.5,2.);
+                    }
+
+                    \uncover<4->{
+                    \node at (3.525,0.78) {\footnotesize Inst};
+                    \draw (2.65,.6) rectangle (4.4,0.966);
+                    \draw (2.65,1.066) rectangle (4.4,1.432);
+                    \draw (2.65,1.532) rectangle (4.4,1.9);
+                    }
+                \end{tikzpicture}
+            \end{column}
+            \begin{column}{.5\textwidth}
+                \uncover<5->{
+                \footnotesize
+                \begin{tikzpicture}
+                    \node at (-1.2, 0) {T:};
+                    \node at (1.8, 0) {F:};
+                    \node[draw] (bb0) at (0, 0) {$a' = b + c$};
+                    \node[draw] (bb1) at (3, 0) {$a'' = b * c$};
+                    \node[draw] (bb2) at (1.5, -2) {$a = \varphi \left\{
+                                            \begin{array}{lcl}
+                                                T&\rightarrow&a'\\
+                                                F&\rightarrow&a''\\
+                                            \end{array}\right.
+                                            $
+                                        };
+                    \draw[thick,->] (bb0) -- (bb2);
+                    \draw[thick,->] (bb1) -- (bb2);
+                \end{tikzpicture}
+                }
+                \uncover<6->{
+                \begin{tikzpicture}
+                    \node (in) at (0, 4) {};
+                    \node[draw] (in) at (0, 2) {\texttt{input.ll}};
+                    \node[draw] (out) at (4, 2) {\texttt{output.ll}};
+                    \draw[thick,->] (in) -- node [anchor=center,above] {Pass}  (out);
+                \vspace{3em}
+                \end{tikzpicture}
+                }
+            \end{column}
         \end{columns}
 
     \end{frame}
-
-    \begin{frame}{stage 4 --- Problems}
-        \begin{itemize}
-            \item Cloning \Code{BasicBlock}s and iterating over a function loops
-            \item Cloning an instruction creates a new \Code{Value}
-            \item Cloning several instructions requires a remapping
-        \end{itemize}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 4 --- Forge a Random Branch}
-
-        \structure{Get analysis result}\\
-        \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={73-74},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        \end{minipage}
-
-        \structure{Pick a random reachable value}\\
-        \hspace{-3.35em}%
-        \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={87-89},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        \end{minipage}
-
-        \structure{Random condition}\\
-        \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={125-128},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        \end{minipage}
-    \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 4 --- Messing with Clones}
-        \structure{Cloning an instruction}\\
-        \hspace{-2em}%
-        \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={169-170},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        \end{minipage}
-
-        \structure{Remap operands}\\
-        \hspace{-2em}%
-        \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={172-172},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        \end{minipage}
-
-        \structure{Manual $\varphi$ creation}\\
-        \hspace{-2em}%
-        \begin{minipage}{\textwidth}
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={183-185},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        \end{minipage}
-
-    \end{frame}
-
-%     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
-%         \framesubtitle{Fuzz your creation}
-%         \begin{alertblock}{Using \Command{csmith}}
-%             \begin{enumerate}
-%                 \item Pick \url{http://embed.cs.utah.edu/csmith/}
-%                 \item Write a configuration file, e.g. \Command{fuzz.cfg}:
-%                     {
-%                         \scriptsize
-% \begin{lstlisting}[language=bash]
-% clang -O2
-% clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
-% \end{lstlisting}
-%                     }
-%                 \item Run generation!
-%                     {
-%                         \scriptsize
-% \begin{lstlisting}[language=bash]
-% % CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
-% \end{lstlisting}
-%                     }
-%             \end{enumerate}
-%         \end{alertblock}
-%     \end{frame}
-
-    \begin{frame}[containsverbatim]{stage 4 --- Bonus}
-        \framesubtitle{Add extra options}
-        \begin{alertblock}{Control the obfuscation ratio}
-        {
-        \scriptsize
-        \lstinputlisting[breaklines=false,linerange={32-39},language=c++]{../DuplicateBB/DuplicateBB.cpp}
-        }
-        \end{alertblock}
-        \vspace{.1em}
-        \structure{$\Rightarrow$} Need to specialize \Code{llvm:cl} for the \Code{Ratio} class.
-    \end{frame}
-
-
-    \begin{frame}{stage 4 --- Bonus}
-        \framesubtitle{Add a support library}
-        \begin{alertblock}{\Code{CMakeLists.txt}}
-        {
-            \scriptsize
-            \lstinputlisting[breaklines=false,linerange={3-3},language=bash,morekeywords={target_link_libraries}]{../DuplicateBB/CMakeLists.txt}
-        }
-        \end{alertblock}
-
-        \begin{alertblock}{Specialize \Code{llvm::cl::parser}}
-        {
-            \scriptsize
-            \lstinputlisting[breaklines=false,linerange={22-25},language=c++]{../include/Utils.h}
-        }
-        \end{alertblock}
-    \end{frame}
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    \begin{frame}{Final Boss}
-        \only<1>{
-        \begin{center}
-            \includegraphics[width=.4\textwidth]{dragon_book.jpg}
-        \end{center}
-        }
-        \only<2>{
-        \begin{tikzpicture}
-            \node[rotate=-45] at (3,2) {\includegraphics[width=.2\textwidth]{dragon_book.jpg}};
-            \node[rotate=-80] at (5,3.5) {\includegraphics[width=.1\textwidth]{dragon_book.jpg}};
-            \node[rotate=-105] at (6,4.4) {\includegraphics[width=.05\textwidth]{dragon_book.jpg}};
-            \node[rotate=-125] at (7,5.2) {\includegraphics[width=.025\textwidth]{dragon_book.jpg}};
-            \node[rotate=-45] at (3,2) {\includegraphics[width=.2\textwidth]{dragon_book.jpg}};
-            \node at (0,0) {\includegraphics[width=.5\textwidth]{dragon_punch.png}};
-        \end{tikzpicture}
-        }
-
-    \end{frame}
-
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    \begin{frame}{GAME OVER}
-
-        \begin{itemize}
-            \centering
-            \item[]\includegraphics[height=2em]{logo.png}
-            \item[]\alert{\bf Creditz}
-            \item[]\texttt{Serge~Guelton~<sguelton@quarkslab.com>}
-            \item[]\texttt{Adrien Guinet <aguinet@quarkslab.com>}
-        \end{itemize}
-        %
-        \begin{itemize}
-            \centering
-            \item[]\alert{\bf Insert Coins}\vspace{.1em}
-            \item[]\texttt{Exit}
-            \item[]\texttt{\hyperlink{page.1}{> Play Again <}}
-        \end{itemize}
-
-    \end{frame}
+%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%    \begin{frame}{LLVM 3.7 --- Tutorial}
+%%        \begin{center}
+%%            \textbf{\Large Press Start Button}
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{LLVM 3.7 --- Prerequisite}
+%%        \begin{center}
+%%            \textbf{\Large Please Load LLVM3.7}
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{LLVM 3.7}
+%%        \begin{center}
+%%            \begin{itemize}
+%%                \centering
+%%                \item[]\alert{\bf Select difficulty}\vspace{1em}
+%%                \item[] \textbf{\texttt{>~}Easy\texttt{~<}}
+%%                \item[] Hard
+%%                \item[] Nightmare
+%%            \end{itemize}
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{LLVM 3.7}
+%%
+%%            \begin{itemize}
+%%                \centering
+%%                \item[]\alert{\bf Stage Selection}\vspace{1em}
+%%                \item[] Adding a new Front-End
+%%                \item[] In-Tree Pass Development
+%%                \item[] \textbf{\texttt{>~}Out-of-Tree Pass Development\texttt{~<}}
+%%                \item[] Adding a new Back-End
+%%            \end{itemize}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}{LLVM 3.7}
+%%
+%%            \begin{itemize}
+%%                \centering
+%%                \item[]\alert{\bf OS Selection}\vspace{1em}
+%%                \item[] \textbf{\texttt{>~}Linux\texttt{~<}}
+%%                \item[] OSX
+%%                \item[] \tikz\node[opacity=0.5]{Windows};
+%%            \end{itemize}
+%%
+%%    \end{frame}
+%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    \begin{frame}{Level Up}
+%%        \begin{center}
+%%            \tikz\node[opacity=1.0]{\textbf{\Large Stage 1 --- Build Setup}};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 2};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 3};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 4};\\
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 1}
+%%
+%%        \framesubtitle{Setup a Proper CMake Project}
+%%
+%%        \begin{block}{Goals}
+%%            \begin{itemize}
+%%                \item Use LLVM Cmake support
+%%                \item Build a minimal pass
+%%            \end{itemize}
+%%
+%%        \end{block}
+%%
+%%        \begin{alertblock}{Bonus}
+%%            \begin{itemize}
+%%                \item Setup a minimal test driver
+%%                \item Make the pass compatible with \Command{clang}
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 1 --- Directory Layout}
+%%    \begin{forest}
+%%          dir tree
+%%          [Tutorial
+%%              [CMakeLists.txt\only<2>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake configuration file}]
+%%              [cmake\only<3>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ CMake auxiliary files}
+%%                [Python.cmake]
+%%              ]
+%%              [MBA\only<4>{\usebeamercolor[fg]{alerted text}~$\longleftarrow$ Our first pass}
+%%                  [CMakeLists.txt]
+%%                  [MBA.cpp]
+%%              ]
+%%          ]
+%%    \end{forest}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
+%%        \begin{block}{LLVM Detection}
+%%            \footnotesize
+%%            \lstinputlisting[breaklines=true,firstline=5, lastline=11,language=bash,morekeywords={endif,message}]{../CMakeLists.txt}
+%%        \end{block}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
+%%        \begin{block}{Load LLVM Config}
+%%            \footnotesize
+%%            \lstinputlisting[firstline=20, lastline=22,language=bash,morekeywords={list,find_package}]{../CMakeLists.txt}
+%%        \end{block}
+%%        \begin{block}{And more LLVM Stuff}
+%%            \footnotesize
+%%            \lstinputlisting[firstline=24, lastline=26,language=bash,morekeywords={list,include}]{../CMakeLists.txt}
+%%        \end{block}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- \texttt{CMakeLists.txt}}
+%%        \begin{block}{Propagate LLVM setup to our project}
+%%            \footnotesize
+%%            \lstinputlisting[firstline=29, lastline=33,language=bash,morekeywords={add_definitions,include_directories},breaklines=true]{../CMakeLists.txt}
+%%        \end{block}
+%%
+%%        \begin{block}{Get Ready!}
+%%            \footnotesize
+%%            \lstinputlisting[firstline=40, lastline=40,language=bash,morekeywords={add_subdirectory}]{../CMakeLists.txt}
+%%        \end{block}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- \texttt{MBA/CMakeLists.txt}}
+%%        \begin{block}{Declare a Pass}
+%%            \footnotesize
+%%            \lstinputlisting[firstline=2, lastline=2,language=bash,morekeywords={add_llvm_loadable_module}]{../MBA/CMakeLists.txt}
+%%        \end{block}
+%%
+%%        \begin{alertblock}{1 Pass = 1 Dynamically Loaded Library}
+%%            \begin{itemize}
+%%                \item Passes are loaded by a pass driver: \textbf{\texttt{opt}}
+%%{
+%%\footnotesize
+%%\begin{lstlisting}[language=bash]
+%%% opt -load LLVMMBA.so -mba foo.ll -S
+%%\end{lstlisting}
+%%}
+%%                \item Or by clang (provided an extra setup)
+%%{
+%%\footnotesize
+%%\begin{lstlisting}[language=bash]
+%%% clang -Xclang -load -Xclang LLVMMBA.so foo.c -c
+%%\end{lstlisting}
+%%}
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- \texttt{MBA.cpp}}
+%%        {
+%%            \footnotesize
+%%            \lstinputlisting[linerange={24-24,27-27,46-46,63-63,65-65,76-77,140-142},language=c++]{../MBA/MBA.cpp}
+%%        }
+%%    \end{frame}
+%%
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- \texttt{MBA.cpp}}
+%%        \begin{alertblock}{Registration Stuff}
+%%            \begin{itemize}
+%%                \item Only performs registration for \Command{opt} use!
+%%                \item Uses a static constructor\dots
+%%            \end{itemize}
+%%        \end{alertblock}
+%%        {
+%%            \footnotesize
+%%            \lstinputlisting[breaklines=true,linerange={150-155},language=c++]{../MBA/MBA.cpp}
+%%        }
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- Bonus Level}
+%%        \begin{alertblock}{Setup test infrastructure}
+%%            \begin{itemize}
+%%                \item Rely on \Command{lit}, LLVM's Integrated Tester
+%%                \item {\footnotesize
+%%\begin{lstlisting}[language=bash]
+%%% pip install --user lit
+%%\end{lstlisting}
+%%                    }
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%        \begin{block}{\texttt{CMakeLists.txt} update}
+%%{
+%%\scriptsize
+%%\lstinputlisting[linerange={45-47,57-61},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND,DEPENDS}]{../CMakeLists.txt}
+%%}
+%%        \end{block}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%        \frametitle{stage 1 --- Bonus Level}
+%%        \begin{alertblock}{Make the pass usable from \Command{clang}}
+%%            \begin{itemize}
+%%                \item Automatically loaded in \Command{clang}'s optimization flow: {\footnotesize\lstinline|clang -Xclang -load -Xclang|}
+%%                \item Several extension points exist
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%{
+%%\scriptsize
+%%\lstinputlisting[linerange={159-164,168-169},language=bash,morekeywords={list,include,find_python_module,REQUIRED,add_custom_target,COMMAND}]{../MBA/MBA.cpp}
+%%}
+%%    \end{frame}
+%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    \begin{frame}{Level Up}
+%%        \begin{center}
+%%            \tikz\node[opacity=0.5]{\Large Stage 1};\\
+%%            \tikz\node[opacity=1.0]{\textbf{\Large Stage 2 --- Simple Pass}};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 3};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 4};\\
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 2}
+%%
+%%        \framesubtitle{Build a Simple Pass}
+%%
+%%        \begin{block}{Goals}
+%%            \begin{itemize}
+%%                \item Learn basic LLVM IR manipulations
+%%                \item Write a simple test case
+%%            \end{itemize}
+%%
+%%        \end{block}
+%%
+%%        \begin{alertblock}{Bonus}
+%%            \begin{itemize}
+%%                \item Collect statistics on your pass
+%%                \item Collect debug informations on your pass
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 2 --- MBA}
+%%        \framesubtitle{Mixed Boolean Arithmetic}
+%%
+%%        \begin{alertblock}{Simple Instruction Selection}
+%%            Turns: $a + b$
+%%
+%%            Into: $(a \oplus b) + 2 \times (a \wedge b)$
+%%        \end{alertblock}
+%%
+%%        \begin{block}{Context}
+%%            \alert{$\Rightarrow$} Useful for code obfuscation
+%%        \end{block}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%    \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
+%%    \begin{itemize}
+%%        \item Iterate over a \Code{BasicBlock}
+%%        \item Use LLVM's \Code{dyn\_cast} to check the instruction kind
+%%    \end{itemize}
+%%	\hspace{-1em}
+%%    \begin{minipage}{\textwidth}
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={82-83,86-87,89-89,95-96},language=c++]{../MBA/MBA.cpp}
+%%    \end{minipage}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%    \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
+%%    LLVM Instruction creation/insertion:
+%%    \begin{itemize}
+%%		\item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
+%%		\item Creates $(a \oplus b) + 2 \times (a \wedge b)$ 
+%%    \end{itemize}
+%%    \hspace{-2em}%
+%%    \begin{minipage}{\textwidth}
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=false,linerange={107-107,109-117},language=c++]{../MBA/MBA.cpp}
+%%    \end{minipage}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]
+%%    \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
+%%    Instruction substitution:
+%%    \begin{itemize}
+%%		\item Use \Code{llvm::ReplaceInstWithValue} that does the job for you
+%%			(need to be careful on iterator validity)
+%%    \end{itemize}
+%%    \begin{minipage}{\textwidth}
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=false,linerange={132-133},language=c++]{../MBA/MBA.cpp}
+%%    \end{minipage}
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 2 --- Write a simple test}
+%%        \begin{alertblock}{\Command{lit} principles}
+%%            \begin{itemize}
+%%                \item One source file (say \texttt{.c} or \texttt{.ll}) per test case
+%%                \item Use comments to describe the test
+%%                \item Use substitution for test configuration
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%        \begin{block}{\Command{FileCheck} --- \Command{grep} on steroids!}
+%%            \begin{itemize}
+%%                \item Compares \Code{argv[1]} and \Code{stdin}
+%%                \item Reads check\textbf{s} from comments in \Code{argv[1]}
+%%                \item[$\Rightarrow$] Requires LLVM with \Code{-DLLVM\_INSTALL\_UTILS}
+%%            \end{itemize}
+%%        \end{block}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
+%%    \begin{minipage}{\textwidth}
+%%            \scriptsize
+%%            \lstinputlisting[breaklines=true,linerange={1-5},language=llvm]{../Tests/MBA.ll}
+%%            \dots
+%%            \lstinputlisting[breaklines=true,linerange={14-16},language=llvm]{../Tests/MBA.ll}
+%%            \dots
+%%            \lstinputlisting[breaklines=true,linerange={22-22},language=llvm]{../Tests/MBA.ll}
+%%        \end{minipage}
+%%    \end{frame}
+%%
+%%
+%%    \begin{frame}[containsverbatim]{stage 2 --- Bonus}
+%%        \framesubtitle{Collect Statistics}
+%%        \structure{How many substitutions have we done?}
+%%        {
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={21-22},language=c++]{../MBA/MBA.cpp}
+%%        }
+%%        \vspace{-1em}%
+%%        \dots\\
+%%        \hspace{-2.5em}%
+%%        \begin{minipage}{\textwidth}
+%%            \footnotesize
+%%            \lstinputlisting[breaklines=false,linerange={138-138},language=c++]{../MBA/MBA.cpp}
+%%        \end{minipage}
+%%
+%%        \structure{Collect them!}
+%%        {
+%%        \footnotesize
+%%\begin{lstlisting}[language=bash]
+%%% opt -load LLVMMBA.so -mba -stats ...
+%%\end{lstlisting}
+%%        }
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 2 --- Bonus}
+%%        \framesubtitle{Debug your pass}
+%%        \begin{alertblock}{\Code{DEBUG()} and \Code{DEBUG\_TYPE}}
+%%        Setup a guard:
+%%        {
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={15-16},language=c++]{../MBA/MBA.cpp}
+%%        }
+%%        \vspace{-1em}
+%%        Add a trace:\\
+%%        \hspace{-3.5em}%
+%%        \begin{minipage}{\textwidth}
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=false,linerange={121-121},language=c++]{../MBA/MBA.cpp}
+%%        \end{minipage}
+%%        \end{alertblock}
+%%        \begin{block}{Collect the trace}
+%%        {
+%%        \footnotesize
+%%        \begin{lstlisting}[language=bash]
+%%% opt -O2 -mba -debug ... # verbose
+%%% opt -O2 -mba -debug-only=mba ... # selective
+%%        \end{lstlisting}
+%%        }
+%%        \end{block}
+%%        %Everything disapears under \Code{-DNDEBUG}
+%%    \end{frame}
+%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    \begin{frame}{Level Up}
+%%        \begin{center}
+%%            \tikz\node[opacity=0.5]{\Large Stage 1};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 2};\\
+%%            \tikz\node[opacity=1.]{\textbf{\Large Stage 3 --- Analyse}};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 4};\\
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 3}
+%%
+%%        \framesubtitle{Build an Analysis}
+%%
+%%        \begin{block}{Goals}
+%%            \begin{itemize}
+%%                \item Use Dominator trees
+%%                \item Write a \Code{llvm::FunctionPass}
+%%                \item Describe dependencies
+%%            \end{itemize}
+%%        \end{block}
+%%
+%%        \begin{alertblock}{Bonus}
+%%            \begin{itemize}
+%%                \item Follow LLVM's guidelines
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 3 --- ReachableIntegerValues}
+%%        \begin{alertblock}{Simple Module Analyse}
+%%            Create a mapping between a \Code{BasicBlock} and a set of \Code{Value}s that can be used in this block.
+%%        \end{alertblock}
+%%
+%%        \begin{block}{Algorithm}
+%%            $V = \text{Visible values}, D = \text{Defined Values}$\\\vspace{-.5em}\tikz\draw (0,0) -- (2,0);
+%%
+%%            \begin{tikzpicture}
+%%                \node[draw=blue] (head) {$v_0$ = ...};
+%%                \node[draw=blue] (loop) [below of=head] {$v_1$ = ...};
+%%                \node[draw=blue] (tail) [below of=loop] {$v_2$ = ...};
+%%                \draw[->,thick] (head) -- (loop);
+%%                \draw[->,thick] (loop) to [out=-25,in=25,looseness=6] (loop);
+%%                \draw[->,thick] (loop) -- (tail);
+%%
+%%                \uncover<2->{\node [right of=head, xshift=8em] {$V = \varnothing, D = \{ v_0 \}$};}
+%%                \uncover<3->{\node [right of=loop, xshift=8em] {$V = \{ v_0 \}, D = \{ v_1 \}$};}
+%%                \uncover<4->{\node [right of=tail, xshift=8em] {$V = \{ v_0, v_1 \}, D = \{ v_2 \}$};}
+%%            \end{tikzpicture}
+%%        \end{block}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 3 --- Building an Analysis}
+%%        \begin{alertblock}{Pass Registration}
+%%        {
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={95-100},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+%%        }
+%%        \end{alertblock}
+%%
+%%        \begin{block}{\texttt{CMakeLists.txt}}
+%%        {
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={1-1},language=c++]{../ReachableIntegerValues/CMakeLists.txt}
+%%        }
+%%        \end{block}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 3 --- Analysis}
+%%
+%%        \begin{itemize}
+%%            \item Need to export the class declaration in a header
+%%            \item Need to load the analysis in \Command{opt} explicitly
+%%            \item Result of the analysis stored as a member variable
+%%        \end{itemize}
+%%
+%%        \structure{API}\\
+%%        {
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={14-16},language=c++]{../include/ReachableIntegerValues.h}
+%%        }
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 3 --- Make Result Available}
+%%        \begin{alertblock}{Dependency Processing}
+%%            \begin{enumerate}
+%%                \item PM runs each required analysis (if not cached)
+%%                \item PM runs the Pass entry point
+%%                \item The Pass calls \Code{getAnalysis<\dots>} to access the instance
+%%            \end{enumerate}
+%%        \end{alertblock}
+%%    \end{frame}
+%%
+%%
+%%    \begin{frame}[containsverbatim]{stage 3 --- Declare Dependencies}
+%%
+%%        \begin{alertblock}{Dependency on DominatorTree}
+%%        {
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={84-87},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+%%        }
+%%        \end{alertblock}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 3 --- \texttt{runOnFunction}}
+%%        \begin{alertblock}{Entry Point}
+%%        {
+%%        \footnotesize
+%%        \lstinputlisting[breaklines=true,linerange={21-21,24-24},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+%%        \texttt{~~~//\dots init stuff}
+%%        \lstinputlisting[breaklines=true,linerange={43-44},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+%%        \texttt{~~~//\dots fill the map}
+%%        \lstinputlisting[breaklines=true,linerange={73-74},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+%%        }
+%%        \end{alertblock}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 3 --- Bonus}
+%%        \framesubtitle{LLVM's coding standard}
+%%
+%%        \alert{Optional}: You're working out-of tree.\\
+%%        But\dots
+%%        \begin{itemize}
+%%            \item Provides a common reference
+%%            \item Helps for visual consistency
+%%        \end{itemize}
+%%        {
+%%            \footnotesize
+%%\begin{lstlisting}[language=bash]
+%%% find . \( -name '*.cpp' -o -name '*.h' \) \
+%%    -exec clang-format-3.7 -i {} \;
+%%\end{lstlisting}
+%%        }
+%%        \url{http://llvm.org/docs/CodingStandards.html}
+%%
+%%    \end{frame}
+%%
+%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    \begin{frame}{Level Up}
+%%        \begin{center}
+%%            \tikz\node[opacity=0.5]{\Large Stage 1};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 2};\\
+%%            \tikz\node[opacity=0.5]{\Large Stage 3};\\
+%%            \tikz\node[opacity=1.0]{\textbf{\Large Stage 4 --- Complex Pass}};\\
+%%        \end{center}
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 4}
+%%
+%%        \framesubtitle{Write a Complex Pass}
+%%
+%%        \begin{block}{Goals}
+%%            \begin{itemize}
+%%                \item Use $\varphi$ nodes
+%%                \item Modify the Control Flow Graph (CFG)
+%%            \end{itemize}
+%%
+%%        \end{block}
+%%
+%%        \begin{alertblock}{Bonus}
+%%            \begin{itemize}
+%%                \item Declare extra options
+%%                \item Fuzz your passes
+%%                \item Add a support library
+%%            \end{itemize}
+%%        \end{alertblock}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 4 --- Duplicate Basic Blocks}
+%%        \begin{columns}[T]
+%%                \begin{column}{.5\textwidth}
+%%                    \centering
+%%                    \structure{Before}\\\vspace{1em}
+%%                    \begin{tikzpicture}[node distance=3em]
+%%                        \node (head) {$BB_0$};
+%%                        \node (cont) [below of=head] {$BB_1$};
+%%                        \draw[->, thick] (head) -- (cont);
+%%                    \end{tikzpicture}
+%%                \end{column}
+%%                \begin{column}{.5\textwidth}
+%%                    \centering
+%%                    \structure{After}\\\vspace{1em}
+%%                    \begin{tikzpicture}[node distance=3em]
+%%                        \node (cond) {branch};
+%%                        \node (clone0) [below of=cond, xshift=-2em] {$BB_0^0$};
+%%                        \node (clone1) [below of=cond, xshift=+2em] {$BB_0^1$};
+%%                        \node (merge) [below of=clone1, xshift=-2em] {merge};
+%%                        \node (cont) [below of=merge] {$BB_1$};
+%%                        \draw[->, thick] (cond) -- (clone0);
+%%                        \draw[->, thick] (cond) -- (clone1);
+%%                        \draw[->, thick] (clone0) -- (merge);
+%%                        \draw[->, thick] (clone1) -- (merge);
+%%                        \draw[->, thick] (merge) -- (cont);
+%%                    \end{tikzpicture}
+%%                \end{column}
+%%        \end{columns}
+%%
+%%    \end{frame}
+%%
+%%    \begin{frame}{stage 4 --- Problems}
+%%        \begin{itemize}
+%%            \item Cloning \Code{BasicBlock}s and iterating over a function loops
+%%            \item Cloning an instruction creates a new \Code{Value}
+%%            \item Cloning several instructions requires a remapping
+%%        \end{itemize}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 4 --- Forge a Random Branch}
+%%
+%%        \structure{Get analysis result}\\
+%%        \begin{minipage}{\textwidth}
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={73-74},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        \end{minipage}
+%%
+%%        \structure{Pick a random reachable value}\\
+%%        \hspace{-3.35em}%
+%%        \begin{minipage}{\textwidth}
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={87-89},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        \end{minipage}
+%%
+%%        \structure{Random condition}\\
+%%        \begin{minipage}{\textwidth}
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={125-128},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        \end{minipage}
+%%    \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 4 --- Messing with Clones}
+%%        \structure{Cloning an instruction}\\
+%%        \hspace{-2em}%
+%%        \begin{minipage}{\textwidth}
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={167-168},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        \end{minipage}
+%%
+%%        \structure{Remap operands}\\
+%%        \hspace{-2em}%
+%%        \begin{minipage}{\textwidth}
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={170-170},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        \end{minipage}
+%%
+%%        \structure{Manual $\varphi$ creation}\\
+%%        \hspace{-2em}%
+%%        \begin{minipage}{\textwidth}
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={181-183},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        \end{minipage}
+%%
+%%    \end{frame}
+%%
+%%%     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
+%%%         \framesubtitle{Fuzz your creation}
+%%%         \begin{alertblock}{Using \Command{csmith}}
+%%%             \begin{enumerate}
+%%%                 \item Pick \url{http://embed.cs.utah.edu/csmith/}
+%%%                 \item Write a configuration file, e.g. \Command{fuzz.cfg}:
+%%%                     {
+%%%                         \scriptsize
+%%% \begin{lstlisting}[language=bash]
+%%% clang -O2
+%%% clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
+%%% \end{lstlisting}
+%%%                     }
+%%%                 \item Run generation!
+%%%                     {
+%%%                         \scriptsize
+%%% \begin{lstlisting}[language=bash]
+%%% % CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
+%%% \end{lstlisting}
+%%%                     }
+%%%             \end{enumerate}
+%%%         \end{alertblock}
+%%%     \end{frame}
+%%
+%%    \begin{frame}[containsverbatim]{stage 4 --- Bonus}
+%%        \framesubtitle{Add extra options}
+%%        \begin{alertblock}{Control the obfuscation ratio}
+%%        {
+%%        \scriptsize
+%%        \lstinputlisting[breaklines=false,linerange={32-39},language=c++]{../DuplicateBB/DuplicateBB.cpp}
+%%        }
+%%        \end{alertblock}
+%%        \vspace{.1em}
+%%        \structure{$\Rightarrow$} Need to specialize \Code{llvm:cl} for the \Code{Ratio} class.
+%%    \end{frame}
+%%
+%%
+%%    \begin{frame}{stage 4 --- Bonus}
+%%        \framesubtitle{Add a support library}
+%%        \begin{alertblock}{\Code{CMakeLists.txt}}
+%%        {
+%%            \scriptsize
+%%            \lstinputlisting[breaklines=false,linerange={3-3},language=bash,morekeywords={target_link_libraries}]{../DuplicateBB/CMakeLists.txt}
+%%        }
+%%        \end{alertblock}
+%%
+%%        \begin{alertblock}{Specialize \Code{llvm::cl::parser}}
+%%        {
+%%            \scriptsize
+%%            \lstinputlisting[breaklines=false,linerange={22-25},language=c++]{../include/Utils.h}
+%%        }
+%%        \end{alertblock}
+%%    \end{frame}
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%    \begin{frame}{Final Boss}
+%%        \only<1>{
+%%        \begin{center}
+%%            \includegraphics[width=.4\textwidth]{dragon_book.jpg}
+%%        \end{center}
+%%        }
+%%        \only<2>{
+%%        \begin{tikzpicture}
+%%            \node[rotate=-45] at (3,2) {\includegraphics[width=.2\textwidth]{dragon_book.jpg}};
+%%            \node[rotate=-80] at (5,3.5) {\includegraphics[width=.1\textwidth]{dragon_book.jpg}};
+%%            \node[rotate=-105] at (6,4.4) {\includegraphics[width=.05\textwidth]{dragon_book.jpg}};
+%%            \node[rotate=-125] at (7,5.2) {\includegraphics[width=.025\textwidth]{dragon_book.jpg}};
+%%            \node[rotate=-45] at (3,2) {\includegraphics[width=.2\textwidth]{dragon_book.jpg}};
+%%            \node at (0,0) {\includegraphics[width=.5\textwidth]{dragon_punch.png}};
+%%        \end{tikzpicture}
+%%        }
+%%
+%%    \end{frame}
+%%
+%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%    \begin{frame}{GAME OVER}
+%%
+%%        \begin{itemize}
+%%            \centering
+%%            \item[]\includegraphics[height=2em]{logo.png}
+%%            \item[]\alert{\bf Creditz}
+%%            \item[]\texttt{Serge~Guelton~<sguelton@quarkslab.com>}
+%%            \item[]\texttt{Adrien Guinet <aguinet@quarkslab.com>}
+%%        \end{itemize}
+%%        %
+%%        \begin{itemize}
+%%            \centering
+%%            \item[]\alert{\bf Insert Coins}\vspace{.1em}
+%%            \item[]\texttt{Exit}
+%%            \item[]\texttt{\hyperlink{page.1}{> Play Again <}}
+%%        \end{itemize}
+%%
+%%    \end{frame}
 
 \end{document}

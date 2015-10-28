@@ -16,3 +16,7 @@ testing and using an out-of-source LLVM project.
 - `Tests` directory contains a basic lit setup.
 
 Hopefully, most of the code is documented or self explanatory, enjoy!
+
+NB: The code does not follow the LLVM formating guidelines, so that code
+samples can be directly included in the LaTeX sources. That's a poor form of
+literate programing, sorry about this.

@@ -95,6 +95,6 @@ char ReachableIntegerValuesPass::ID = 0;
 static RegisterPass<ReachableIntegerValuesPass>
     X("reachable-integer-values",         // pass option
       "Compute Reachable Integer values", // pass description
-      true,                               // does not modify the CFG
-      true                                // and it's an analysis
+      true, // does not modify the CFG
+      true  // and it's an analysis
       );
