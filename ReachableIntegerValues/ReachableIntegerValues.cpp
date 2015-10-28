@@ -23,7 +23,7 @@ bool ReachableIntegerValuesPass::runOnFunction(Function &F) {
   // repetitively, so we must clear its state each time we enter runOnFunction
   ReachableIntegerValuesMap.clear();
 
-  // First compute sets of defined registers for each Basic block
+  // First compute sets of integer values defined for each Basic block
   ReachableIntegerValuesMapTy DefinedValuesMap;
   for (BasicBlock &BB : F) {
     auto &Values = DefinedValuesMap[&BB];
