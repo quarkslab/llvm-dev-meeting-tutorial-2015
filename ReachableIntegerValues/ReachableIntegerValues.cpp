@@ -73,8 +73,12 @@ bool ReachableIntegerValuesPass::runOnFunction(Function &F) {
   return false;
 }
 
-// That's how dependencies are declared. Analyse are read-only, so they
-// generally preserve everything
+// This instructs the PassManager of the analyses required and preserved by
+// this pass. The Pass Manager will schedule required passes earlier in the
+// pipeline and make them available for this pass. Identifying the preserved
+// analyses allows to save compile time by avoiding to recompute analysis when
+// the results won't change.
+// Analyses are read-only, so they generally preserve everything
 // see
 // http://llvm.org/docs/WritingAnLLVMPass.html#specifying-interactions-between-passes
 void ReachableIntegerValuesPass::getAnalysisUsage(AnalysisUsage &Info) const {
@@ -91,6 +95,6 @@ char ReachableIntegerValuesPass::ID = 0;
 static RegisterPass<ReachableIntegerValuesPass>
     X("reachable-integer-values",         // pass option
       "Compute Reachable Integer values", // pass description
-      true, // does not modify the CFG
-      true // and it's an analysis
+      true,                               // does not modify the CFG
+      true                                // and it's an analysis
       );
