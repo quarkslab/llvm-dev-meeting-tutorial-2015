@@ -81,7 +81,7 @@ public:
     auto &BIL = BB.getInstList();
     for (auto IIT = BIL.begin(), IE = BIL.end(); IIT != IE; ++IIT) {
       Instruction &Inst = *IIT;
-      // not a dynamic_cast!
+      // not a dynamic_cast! FIXME: I don't get this comment?
       // see
       // http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
       auto *BinOp = dyn_cast<BinaryOperator>(&Inst);
