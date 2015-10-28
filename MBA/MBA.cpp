@@ -82,7 +82,7 @@ public:
       // see http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
       if (auto*BinOp=dyn_cast<BinaryOperator>(&Inst)) {
 
-        if (Dist(RNG) < MBARatio.getValue().getRatio()) {
+        if (Dist(RNG) < MBARatio.getRatio()) {
 
           unsigned Opcode = BinOp->getOpcode();
           if (Opcode == Instruction::Add and BinOp->getType()->isIntegerTy()) {
