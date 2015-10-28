@@ -6,13 +6,14 @@
  * It showcases the development of an Analysis.
  */
 
-#define DEBUG_TYPE "reachable-integer-values"
+#include "ReachableIntegerValues.h"
+
+#include "llvm/IR/Dominators.h"
 #include "llvm/Support/Debug.h"
 
-#include "ReachableIntegerValues.h"
-#include "llvm/IR/Dominators.h"
-
 #include <deque>
+
+#define DEBUG_TYPE "reachable-integer-values"
 
 using namespace llvm;
 
