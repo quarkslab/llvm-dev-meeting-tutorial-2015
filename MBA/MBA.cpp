@@ -87,7 +87,7 @@ public:
       // http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
       auto *BinOp = dyn_cast<BinaryOperator>(&Inst);
       if (!BinOp)
-         // The instruction is not a binary operator, we don't handle it.
+        // The instruction is not a binary operator, we don't handle it.
         continue;
 
       if (Dist(RNG) > MBARatio.getRatio())
@@ -95,44 +95,49 @@ public:
         continue;
 
       unsigned Opcode = BinOp->getOpcode();
-      if (Opcode == Instruction::Add && BinOp->getType()->isIntegerTy()) {
-        // The IRBuilder helps you inserting instructions in a clean and
-        // fast way
-        // see
-        // http://llvm.org/docs/ProgrammersManual.html#creating-and-inserting-new-instructions
-        IRBuilder<> Builder(BinOp);
+      if (Opcode != Instruction::Add || !BinOp->getType()->isIntegerTy())
+        // Only handle integer add.
+        // Note instead of doing a dyn_cast to a BinaryOperator above, we could
+        // have done directly a dyn_cast to AddOperator, but this way seems more
+        // effective to later add other operator.
+        continue;
 
-        Value *NewValue = Builder.CreateAdd(
-            Builder.CreateXor(BinOp->getOperand(0), BinOp->getOperand(1)),
-            Builder.CreateMul(
-                ConstantInt::get(BinOp->getType(), 2),
-                Builder.CreateAnd(BinOp->getOperand(0), BinOp->getOperand(1))));
+      // The IRBuilder helps you inserting instructions in a clean and
+      // fast way
+      // see
+      // http://llvm.org/docs/ProgrammersManual.html#creating-and-inserting-new-instructions
+      IRBuilder<> Builder(BinOp);
 
-        DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
+      Value *NewValue = Builder.CreateAdd(
+          Builder.CreateXor(BinOp->getOperand(0), BinOp->getOperand(1)),
+          Builder.CreateMul(
+              ConstantInt::get(BinOp->getType(), 2),
+              Builder.CreateAnd(BinOp->getOperand(0), BinOp->getOperand(1))));
 
-        // ReplaceInstWithValue basically does this (`IIT' is passed by
-        // reference):
-        // IIT->replaceAllUsesWith(NewValue);
-        // IIT = BB.getInstList.erase(IIT);
-        //
-        // `erase' returns a valid iterator of the instruction before the
-        // one that has been erased. This makes the validator valid, and
-        // since BIL.end() is fetch at each loop iteration, `IIT' is
-        // compared against a valid iterator.
-        //
-        // FIXME: the commemt above is wrong, BIL.end() is *not* fetched at
-        // each loop iteration. And we don't care since end() is not the last
-        // element but one past.
-        //
-        // see also
-        // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
-        ReplaceInstWithValue(BB.getInstList(), IIT, NewValue);
-        modified = true;
+      DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
 
-        // update statistics!
-        // They are printed out with -stats on the opt command line
-        ++MBACount;
-      }
+      // ReplaceInstWithValue basically does this (`IIT' is passed by
+      // reference):
+      // IIT->replaceAllUsesWith(NewValue);
+      // IIT = BB.getInstList.erase(IIT);
+      //
+      // `erase' returns a valid iterator of the instruction before the
+      // one that has been erased. This makes the validator valid, and
+      // since BIL.end() is fetch at each loop iteration, `IIT' is
+      // compared against a valid iterator.
+      //
+      // FIXME: the commemt above is wrong, BIL.end() is *not* fetched at
+      // each loop iteration. And we don't care since end() is not the last
+      // element but one past.
+      //
+      // see also
+      // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
+      ReplaceInstWithValue(BB.getInstList(), IIT, NewValue);
+      modified = true;
+
+      // update statistics!
+      // They are printed out with -stats on the opt command line
+      ++MBACount;
     }
     return modified;
   }
