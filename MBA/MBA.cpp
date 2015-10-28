@@ -84,9 +84,12 @@ public:
       Instruction& Inst = *IIT;
       // not a dynamic_cast!
       // see http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
-      if (auto*BinOp=dyn_cast<BinaryOperator>(&Inst)) {
+      auto *BinOp = dyn_cast<BinaryOperator>(&Inst);
+      if (!BinOp)
+        continue;
 
-        if (Dist(RNG) < MBARatio.getRatio()) {
+      if (Dist(RNG) > MBARatio.getRatio())
+        continue;
 
           unsigned Opcode = BinOp->getOpcode();
           if (Opcode == Instruction::Add and BinOp->getType()->isIntegerTy()) {
@@ -126,8 +129,6 @@ public:
             // update statistics!
             // They are printed out with -analyze on the opt command line
             ++MBACount;
-          }
-        }
       }
     }
     return modified;
