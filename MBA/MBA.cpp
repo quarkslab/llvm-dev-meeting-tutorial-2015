@@ -78,8 +78,7 @@ public:
     bool modified = false;
     std::uniform_real_distribution<double> Dist(0., 1.);
 
-    auto &BIL = BB.getInstList();
-    for (auto IIT = BIL.begin(), IE = BIL.end(); IIT != IE; ++IIT) {
+    for (auto IIT = BB.begin(), IE = BB.end(); IIT != IE; ++IIT) {
       Instruction &Inst = *IIT;
       // not a dynamic_cast! FIXME: I don't get this comment?
       // see
