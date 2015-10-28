@@ -22,7 +22,6 @@
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 
-
 /* for debug support */
 #define DEBUG_TYPE "duplicate-bb"
 
@@ -31,13 +30,9 @@ STATISTIC(DuplicateBBCount, "The # of duplicated blocks");
 
 // Similar to MBA's
 static llvm::cl::opt<Ratio> DuplicateBBRatio{
-    "duplicate-bb-ratio",
-    llvm::cl::desc("Only apply the duplicate basic block "
-                   "pass on <ratio> of the basic blocks"),
-    llvm::cl::value_desc("ratio"),
-    llvm::cl::init(1.),
-    llvm::cl::Optional
-};
+    "duplicate-bb-ratio", llvm::cl::desc("Only apply the duplicate basic block "
+                                         "pass on <ratio> of the basic blocks"),
+    llvm::cl::value_desc("ratio"), llvm::cl::init(1.), llvm::cl::Optional};
 
 using namespace llvm;
 
@@ -85,7 +80,8 @@ public:
         size_t ReachableValuesCount = ReachableValues.size();
         if (ReachableValuesCount) {
           // Yes! pick a random one
-          std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount-1);
+          std::uniform_int_distribution<size_t> Dist(0,
+                                                     ReachableValuesCount - 1);
           auto Iter = ReachableValues.begin();
           std::advance(Iter, Dist(RNG));
           DEBUG(errs() << "picking: " << **Iter
@@ -124,9 +120,7 @@ private:
     IRBuilder<> Builder(BBHead);
 
     Value *Cond = Builder.CreateIsNull(
-        ReMapper.count(ContextValue) ?
-        ReMapper[ContextValue] :
-        ContextValue);
+        ReMapper.count(ContextValue) ? ReMapper[ContextValue] : ContextValue);
 
     // the goals is to got from
     // BB --> TERM
@@ -167,8 +161,7 @@ private:
         // the original basic block
         // we want them to refer to the cloned one! The mappings are used for
         // this
-        Instruction *ThenClone = Instr.clone(),
-                    *ElseClone = Instr.clone();
+        Instruction *ThenClone = Instr.clone(), *ElseClone = Instr.clone();
 
         RemapInstruction(ThenClone, ThenVMap, RF_IgnoreMissingEntries);
         ThenClone->insertBefore(ThenTerm);
