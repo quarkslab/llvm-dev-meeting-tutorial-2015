@@ -412,7 +412,7 @@
     \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
     \begin{itemize}
         \item Iterate over a \Code{BasicBlock}
-        \item Use LLVM's \Code{dyn\_cast}
+        \item Use LLVM's \Code{dyn\_cast} to check the instruction kind
     \end{itemize}
 	\hspace{-1em}
     \begin{minipage}{\textwidth}
@@ -425,7 +425,8 @@
     \frametitle{stage 2 --- \texttt{runOnBasicBlock++}}
     LLVM Instruction creation/insertion:
     \begin{itemize}
-        \item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
+		\item Use \Code{IRBuilder} from \Code{llvm/IR/IRBuilder.h}
+		\item Creates $(a \oplus b) + 2 \times (a \wedge b)$ 
     \end{itemize}
     \hspace{-4em}%
     \begin{minipage}{\textwidth}
@@ -468,8 +469,10 @@
 
     \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
     \begin{minipage}{\textwidth}
-            \footnotesize
-            \lstinputlisting[breaklines=true,linerange={1-7},language=llvm]{../Tests/MBA.ll}
+            \scriptsize
+            \lstinputlisting[breaklines=true,linerange={1-5},language=llvm]{../Tests/MBA.ll}
+            \dots
+            \lstinputlisting[breaklines=true,linerange={14-16},language=llvm]{../Tests/MBA.ll}
             \dots
             \lstinputlisting[breaklines=true,linerange={22-22},language=llvm]{../Tests/MBA.ll}
         \end{minipage}
