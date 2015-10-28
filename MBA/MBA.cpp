@@ -8,28 +8,32 @@
  * This showcases the development of a simple Basic Block pass.
  */
 
+/* headers are per category and sorted alphabetically
+ * see http://llvm.org/docs/CodingStandards.html#include-style
+ */
+#include "Utils.h"
+
+#include "llvm/ADT/Statistic.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/InstrTypes.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Module.h"
+#include "llvm/Pass.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
+
 /* for debug support
  * see
  * http://llvm.org/docs/ProgrammersManual.html#the-debug-macro-and-debug-option
  */
 #define DEBUG_TYPE "mba"
-#include "llvm/Support/Debug.h"
 
 /* for stat support
  * see http://llvm.org/docs/WritingAnLLVMPass.html#pass-statistics
  */
-#include "llvm/ADT/Statistic.h"
 STATISTIC(MBACount, "The # of substituted instructions");
 
-#include "llvm/Pass.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Function.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/IR/InstrTypes.h"
-#include "llvm/Transforms/Utils/BasicBlockUtils.h"
-
-#include "Utils.h"
 
 /*****************************************
  * Pass implementation
