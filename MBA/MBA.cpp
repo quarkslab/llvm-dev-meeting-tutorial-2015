@@ -57,6 +57,10 @@ namespace {
 class MBA : public BasicBlockPass {
 
 public:
+  // The address of this static is used to uniquely identify this pass in the
+  // pass registry. The PassManager relies on this address to find instance of
+  // analyses passes and build dependencies on demand.
+  // The value does not matter.
   static char ID;
   compat::RandomNumberGenerator RNG;
 
@@ -64,8 +68,8 @@ public:
           , RNG(nullptr)
   {}
 
-  // Called once for each module, before the calls on the basic block
-  // We could use doFinalization to clear RNG, bu that's not needed
+  // Called once for each module, before the calls on the basic blocks.
+  // We could use doFinalization to clear RNG, but that's not needed.
   bool doInitialization(Module &M) override {
     RNG = M.createRNG(this);
     return false;
@@ -122,7 +126,9 @@ public:
             ReplaceInstWithValue(BB.getInstList(),
                                  IIT, NewValue);
             modified = true;
+
             // update statistics!
+            // They are printed out with -analyze on the opt command line
             ++MBACount;
           }
         }
