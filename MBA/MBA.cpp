@@ -114,9 +114,7 @@ public:
             // IIT = BB.getInstList.erase(IIT);
             //
             // `erase' returns a valid iterator of the instruction before the
-            // one that has been erased. This makes the validator valid, and
-            // since BIL.end() is fetch at each loop iteration, `IIT' is
-            // compared against a valid iterator.
+            // one that has been erased. This keeps iterators valid.
             //
             // see also
             // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
