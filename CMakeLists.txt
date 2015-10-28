@@ -51,4 +51,6 @@ endif()
 # provide the make check target based on lit
 add_custom_target(check
     COMMAND ${PYTHON_EXECUTABLE} -m lit.main
-            "${CMAKE_CURRENT_BINARY_DIR}/Tests" -v)
+            "${CMAKE_CURRENT_BINARY_DIR}/Tests" -v
+    DEPENDS LLVMMBA LLVMReachableIntegerValues LLVMDuplicateBB
+)
