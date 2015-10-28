@@ -52,21 +52,23 @@ bool ReachableIntegerValuesPass::runOnFunction(Function &F) {
     auto *NodeToProcess = NodesToProcess.back();
     NodesToProcess.pop_back();
     DEBUG(errs() << "processing BB " << NodeToProcess->getBlock() << "\n");
+    auto &ParentDefinedValues = DefinedValuesMap[NodeToProcess->getBlock()];
+    auto &ParentReachableValues =
+        ReachableIntegerValuesMap[NodeToProcess->getBlock()];
+    // Add the ParentDefinedValues and ParentReachableValues to all children's
+    // ReachableIntegerValues.
     for (auto *Child : *NodeToProcess) {
       DEBUG(errs() << "updating dominated child " << Child->getBlock() << "\n");
+      // Add the child to the work list now that it is processed.
       NodesToProcess.push_back(Child);
-      {
-        // add defined values to dominated nodes
-        auto &Values = DefinedValuesMap[NodeToProcess->getBlock()];
-        ReachableIntegerValuesMap[Child->getBlock()].insert(Values.begin(),
-                                                            Values.end());
-      }
-      {
-        // add inherited values from dominating node
-        auto &Values = ReachableIntegerValuesMap[NodeToProcess->getBlock()];
-        ReachableIntegerValuesMap[Child->getBlock()].insert(Values.begin(),
-                                                            Values.end());
-      }
+
+      auto ChildReachableValue = ReachableIntegerValuesMap[Child->getBlock()];
+      // add defined values to dominated nodes
+      ChildReachableValue.insert(ParentDefinedValues.begin(),
+                                 ParentDefinedValues.end());
+      // add inherited values from dominating node
+      ChildReachableValue.insert(ParentReachableValues.begin(),
+                                 ParentReachableValues.end());
     }
   }
 
