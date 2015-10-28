@@ -77,12 +77,10 @@ public:
     bool modified = false;
     std::uniform_real_distribution<double> Dist(0., 1.);
 
-    auto& BIL = BB.getInstList();
-    for (auto IIT = BIL.begin(), IE = BIL.end();
-         IIT != IE; ++IIT)
-    {
-      Instruction& Inst = *IIT;
-      // not a dynamic_cast!
+    auto &BIL = BB.getInstList();
+    for (auto IIT = BIL.begin(), IE = BIL.end(); IIT != IE; ++IIT) {
+      Instruction &Inst = *IIT;
+      // not regular C++ a dynamic_cast!
       // see http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
       auto *BinOp = dyn_cast<BinaryOperator>(&Inst);
       if (!BinOp)
