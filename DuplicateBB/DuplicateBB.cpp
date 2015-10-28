@@ -8,25 +8,26 @@
  * home-grown analysis.
  */
 
-/* for debug support */
-#define DEBUG_TYPE "duplicate-bb"
-#include "llvm/Support/Debug.h"
+#include "ReachableIntegerValues.h"
+#include "Utils.h"
 
-/* for stat support */
 #include "llvm/ADT/Statistic.h"
-STATISTIC(DuplicateBBCount, "The # of duplicated blocks");
-
-#include "llvm/Pass.h"
+#include "llvm/IR/Function.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Module.h"
-#include "llvm/IR/Function.h"
+#include "llvm/Pass.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/RandomNumberGenerator.h"
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 
-#include "ReachableIntegerValues.h"
-#include "Utils.h"
+
+/* for debug support */
+#define DEBUG_TYPE "duplicate-bb"
+
+/* for stat support */
+STATISTIC(DuplicateBBCount, "The # of duplicated blocks");
 
 // Similar to MBA's
 static llvm::cl::opt<Ratio> DuplicateBBRatio{
