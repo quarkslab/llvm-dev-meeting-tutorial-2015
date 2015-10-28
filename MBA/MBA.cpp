@@ -114,6 +114,8 @@ public:
               ConstantInt::get(BinOp->getType(), 2),
               Builder.CreateAnd(BinOp->getOperand(0), BinOp->getOperand(1))));
 
+      // The following is visible only if you pass -debug on the command line
+      // *and* you have an assert build.
       DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
 
       // ReplaceInstWithValue basically does this (`IIT' is passed by
