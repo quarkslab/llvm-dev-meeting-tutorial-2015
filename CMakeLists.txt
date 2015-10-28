@@ -10,6 +10,11 @@ if(NOT EXISTS ${LLVM_ROOT}/include/llvm )
             "LLVM_ROOT (${LLVM_ROOT}) is invalid")
 endif()
 
+if(NOT EXISTS ${LLVM_ROOT}/bin/clang )
+    message(FATAL_ERROR
+        "clang not compiled with LLVM")
+endif()
+
 # Load various LLVM config stuff,
 # see http://llvm.org/docs/CMake.html#developing-llvm-passes-out-of-source
 list(APPEND CMAKE_PREFIX_PATH

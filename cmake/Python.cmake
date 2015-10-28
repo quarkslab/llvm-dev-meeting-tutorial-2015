@@ -4,9 +4,6 @@ include(FindPythonInterp)
 function(find_python_module module)
 	string(TOUPPER ${module} module_upper)
 	if(NOT PY_${module_upper})
-		if(ARGC GREATER 1 AND ARGV1 STREQUAL "REQUIRED")
-			set(${module}_FIND_REQUIRED TRUE)
-		endif()
 		# A module's location is usually a directory, but for binary modules
 		# it's a .so file.
         execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c" 
@@ -20,4 +17,7 @@ function(find_python_module module)
 		endif(NOT _${module}_status)
 	endif(NOT PY_${module_upper})
 	find_package_handle_standard_args(PY_${module} DEFAULT_MSG PY_${module_upper})
+    if(ARGC GREATER 1 AND ARGV1 STREQUAL "REQUIRED" AND NOT PY_${module_upper})
+        message(FATAL_ERROR "Python module ${module} not found")
+    endif()
 endfunction(find_python_module)
