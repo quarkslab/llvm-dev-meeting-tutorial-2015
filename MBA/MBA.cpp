@@ -117,6 +117,10 @@ public:
         // since BIL.end() is fetch at each loop iteration, `IIT' is
         // compared against a valid iterator.
         //
+        // FIXME: the commemt above is wrong, BIL.end() is *not* fetched at
+        // each loop iteration. And we don't care since end() is not the last
+        // element but one past.
+        //
         // see also
         // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
         ReplaceInstWithValue(BB.getInstList(), IIT, NewValue);
