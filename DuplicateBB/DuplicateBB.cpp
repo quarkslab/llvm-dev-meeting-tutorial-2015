@@ -74,27 +74,27 @@ public:
       if (BB.isLandingPad())
         continue;
 
-      if (Dist(RNG) <= Ratio) {
-        // Do we have any integer value reachable from this BB?
-        auto const &ReachableValues = RIV.lookup(&BB);
-        size_t ReachableValuesCount = ReachableValues.size();
-        if (ReachableValuesCount) {
-          // Yes! pick a random one
-          std::uniform_int_distribution<size_t> Dist(0,
-                                                     ReachableValuesCount - 1);
-          auto Iter = ReachableValues.begin();
-          std::advance(Iter, Dist(RNG));
-          DEBUG(errs() << "picking: " << **Iter
-                       << " as random context value\n");
-          // Store the binding and a BB to duplicate and the context variable
-          // used to hide it
-          Targets.emplace_back(&BB, *Iter);
+      if (Dist(RNG) > Ratio)
+        continue;
 
-          ++DuplicateBBCount;
-        } else {
-          DEBUG(errs() << "no context value found\n");
-        }
+      // Do we have any integer value reachable from this BB?
+      auto const &ReachableValues = RIV.lookup(&BB);
+      size_t ReachableValuesCount = ReachableValues.size();
+      if (!ReachableValuesCount) {
+        DEBUG(errs() << "no context value found\n");
+        continue;
       }
+
+      // Yes! pick a random one
+      std::uniform_int_distribution<size_t> Dist(0, ReachableValuesCount - 1);
+      auto Iter = ReachableValues.begin();
+      std::advance(Iter, Dist(RNG));
+      DEBUG(errs() << "picking: " << **Iter << " as random context value\n");
+      // Store the binding and a BB to duplicate and the context variable
+      // used to hide it
+      Targets.emplace_back(&BB, *Iter);
+
+      ++DuplicateBBCount;
     }
 
     // Run the actual duplication
