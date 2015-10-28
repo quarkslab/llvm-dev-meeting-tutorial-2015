@@ -11,8 +11,8 @@ testing and using an out-of-source LLVM project.
 - `ReachableIntegerValues` contains the code for a simple analysis ;
 
 - `DuplicateBB` contains the code for a slightly more complex transformation
-  that reliess on the above analyse ;
+  that relies on the above analyse ;
 
-- `Tests` contains a baisc lit setup.
+- `Tests` directory contains a basic lit setup.
 
-Hopefully, most of the code is documented or self explinatory, enjoy!
+Hopefully, most of the code is documented or self explanatory, enjoy!
