@@ -127,7 +127,7 @@ private:
         ReMapper[ContextValue] :
         ContextValue);
 
-    // the goals is to got from
+    // the goals is to get from
     // BB --> TERM
     // to
     //        BB Clone
