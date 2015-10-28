@@ -3,7 +3,7 @@
  *
  * This just performs an instruction substitution, replacing a simple operation
  * (an add between two integers) by an equivalent instruction that is more
- *complex.
+ * complex.
  *
  * This showcases the development of a simple Basic Block pass.
  */
