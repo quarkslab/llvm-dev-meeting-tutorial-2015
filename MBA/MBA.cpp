@@ -91,7 +91,7 @@ public:
         continue;
 
           unsigned Opcode = BinOp->getOpcode();
-          if (Opcode == Instruction::Add and BinOp->getType()->isIntegerTy()) {
+          if (Opcode == Instruction::Add && BinOp->getType()->isIntegerTy()) {
             // The IRBuilder helps you inserting instructions in a clean and
             // fast way
             // see
