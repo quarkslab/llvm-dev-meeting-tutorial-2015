@@ -151,36 +151,35 @@ private:
              "phi nodes have already been filtered out");
 
       // We have a different processing of the last instruction
-      if (not isa<TerminatorInst>(&Instr)) {
-        // once the instruction is cloned, its operand still hold reference to
-        // the original basic block
-        // we want them to refer to the cloned one! The mappings are used for
-        // this
-        Instruction *ThenClone = Instr.clone(), *ElseClone = Instr.clone();
-
-        RemapInstruction(ThenClone, ThenVMap, RF_IgnoreMissingEntries);
-        ThenClone->insertBefore(ThenTerm);
-        ThenVMap[&Instr] = ThenClone;
-
-        RemapInstruction(ElseClone, ElseVMap, RF_IgnoreMissingEntries);
-        ElseClone->insertBefore(ElseTerm);
-        ElseVMap[&Instr] = ElseClone;
-
-        // instruction that produce a value should not require a slot in the
-        // TAIL *but* they can be used from the context, so just always
-        // generate a PHI, and let further optimization do the cleaning
-        PHINode *Phi = PHINode::Create(ThenClone->getType(), 2);
-        Phi->addIncoming(ThenClone, ThenTerm->getParent());
-        Phi->addIncoming(ElseClone, ElseTerm->getParent());
-        TailVMap[&Instr] = Phi;
-
-        ReMapper[&Instr] = Phi;
-
-        ReplaceInstWithInst(&Instr, Phi);
-
-      } else {
+      if (isa<TerminatorInst>(&Instr)) {
         RemapInstruction(&Instr, TailVMap, RF_IgnoreMissingEntries);
+        continue;
       }
+      // once the instruction is cloned, its operand still hold reference to
+      // the original basic block
+      // we want them to refer to the cloned one! The mappings are used for
+      // this
+      Instruction *ThenClone = Instr.clone(), *ElseClone = Instr.clone();
+
+      RemapInstruction(ThenClone, ThenVMap, RF_IgnoreMissingEntries);
+      ThenClone->insertBefore(ThenTerm);
+      ThenVMap[&Instr] = ThenClone;
+
+      RemapInstruction(ElseClone, ElseVMap, RF_IgnoreMissingEntries);
+      ElseClone->insertBefore(ElseTerm);
+      ElseVMap[&Instr] = ElseClone;
+
+      // instruction that produce a value should not require a slot in the
+      // TAIL *but* they can be used from the context, so just always
+      // generate a PHI, and let further optimization do the cleaning
+      PHINode *Phi = PHINode::Create(ThenClone->getType(), 2);
+      Phi->addIncoming(ThenClone, ThenTerm->getParent());
+      Phi->addIncoming(ElseClone, ElseTerm->getParent());
+      TailVMap[&Instr] = Phi;
+
+      ReMapper[&Instr] = Phi;
+
+      ReplaceInstWithInst(&Instr, Phi);
     }
   }
 };
