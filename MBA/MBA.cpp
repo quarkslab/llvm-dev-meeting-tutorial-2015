@@ -127,7 +127,7 @@ public:
         modified = true;
 
         // update statistics!
-        // They are printed out with -analyze on the opt command line
+        // They are printed out with -stats on the opt command line
         ++MBACount;
       }
     }
