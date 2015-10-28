@@ -163,7 +163,7 @@ static void registerClangPass(const PassManagerBuilder &,
                               legacy::PassManagerBase &PM)
 { PM.add(new MBA()); }
 
-// Note the registration point, clang offers several insertion point where you
-// can insert your pass
+// Note the registration point, clang offers several insertion points where you
+// can insert your pass.
 static RegisterStandardPasses RegisterClangPass
     (PassManagerBuilder::EP_EarlyAsPossible, registerClangPass);
