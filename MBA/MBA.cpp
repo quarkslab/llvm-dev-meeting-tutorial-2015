@@ -77,6 +77,8 @@ public:
     bool modified = false;
     std::uniform_real_distribution<double> Dist(0., 1.);
 
+    // Can't use a for-range loop because we want to delete the instruction from
+    // the list we're iterating when replacing it.
     for (auto IIT = BB.begin(), IE = BB.end(); IIT != IE; ++IIT) {
       Instruction &Inst = *IIT;
       // not regular C++ a dynamic_cast!
