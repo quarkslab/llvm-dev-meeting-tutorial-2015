@@ -146,12 +146,7 @@ private:
     // add them to the true/false branch
     // and update their use on the fly, through values stored in then_mapping
     // and else_mapping
-    std::vector<Instruction *> TailInstructions(Tail->size());
-    std::transform(Tail->begin(), Tail->end(), TailInstructions.begin(),
-                   [](Instruction &I) { return &I; });
-
-    for (Instruction *I : TailInstructions) {
-      Instruction &Instr = *I;
+    for (Instruction &Instr : *Tail) {
       assert(not isa<PHINode>(&Instr) and
              "phi nodes have already been filtered out");
 
