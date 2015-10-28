@@ -34,7 +34,6 @@
  */
 STATISTIC(MBACount, "The # of substituted instructions");
 
-
 /*****************************************
  * Pass implementation
  *****************************************/
@@ -64,9 +63,7 @@ public:
   static char ID;
   compat::RandomNumberGenerator RNG;
 
-  MBA() : BasicBlockPass(ID)
-          , RNG(nullptr)
-  {}
+  MBA() : BasicBlockPass(ID), RNG(nullptr) {}
 
   // Called once for each module, before the calls on the basic blocks.
   // We could use doFinalization to clear RNG, but that's not needed.
@@ -81,13 +78,12 @@ public:
     bool modified = false;
     std::uniform_real_distribution<double> Dist(0., 1.);
 
-    auto& BIL = BB.getInstList();
-    for (auto IIT = BIL.begin(), IE = BIL.end();
-         IIT != IE; ++IIT)
-    {
-      Instruction& Inst = *IIT;
+    auto &BIL = BB.getInstList();
+    for (auto IIT = BIL.begin(), IE = BIL.end(); IIT != IE; ++IIT) {
+      Instruction &Inst = *IIT;
       // not a dynamic_cast!
-      // see http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
+      // see
+      // http://llvm.org/docs/ProgrammersManual.html#the-isa-cast-and-dyn-cast-templates
       auto *BinOp = dyn_cast<BinaryOperator>(&Inst);
       if (!BinOp)
         continue;
@@ -95,44 +91,40 @@ public:
       if (Dist(RNG) > MBARatio.getRatio())
         continue;
 
-          unsigned Opcode = BinOp->getOpcode();
-          if (Opcode == Instruction::Add and BinOp->getType()->isIntegerTy()) {
-            // The IRBuilder helps you inserting instructions in a clean and
-            // fast way
-            // see
-            // http://llvm.org/docs/ProgrammersManual.html#creating-and-inserting-new-instructions
-            IRBuilder<> Builder(BinOp);
+      unsigned Opcode = BinOp->getOpcode();
+      if (Opcode == Instruction::Add and BinOp->getType()->isIntegerTy()) {
+        // The IRBuilder helps you inserting instructions in a clean and
+        // fast way
+        // see
+        // http://llvm.org/docs/ProgrammersManual.html#creating-and-inserting-new-instructions
+        IRBuilder<> Builder(BinOp);
 
-            Value *NewValue = Builder.CreateAdd(
-              Builder.CreateXor(BinOp->getOperand(0),
-                                BinOp->getOperand(1)),
-              Builder.CreateMul(
+        Value *NewValue = Builder.CreateAdd(
+            Builder.CreateXor(BinOp->getOperand(0), BinOp->getOperand(1)),
+            Builder.CreateMul(
                 ConstantInt::get(BinOp->getType(), 2),
-                Builder.CreateAnd(
-                  BinOp->getOperand(0),
-                  BinOp->getOperand(1)))
-            );
+                Builder.CreateAnd(BinOp->getOperand(0), BinOp->getOperand(1))));
 
-            DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
+        DEBUG(dbgs() << *BinOp << " -> " << *NewValue << "\n");
 
-            // ReplaceInstWithValue basically does this (`IIT' is passed by reference):
-            // IIT->replaceAllUsesWith(NewValue);
-            // IIT = BB.getInstList.erase(IIT);
-            //
-            // `erase' returns a valid iterator of the instruction before the
-            // one that has been erased. This makes the validator valid, and
-            // since BIL.end() is fetch at each loop iteration, `IIT' is
-            // compared against a valid iterator.
-            //
-            // see also
-            // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
-            ReplaceInstWithValue(BB.getInstList(),
-                                 IIT, NewValue);
-            modified = true;
+        // ReplaceInstWithValue basically does this (`IIT' is passed by
+        // reference):
+        // IIT->replaceAllUsesWith(NewValue);
+        // IIT = BB.getInstList.erase(IIT);
+        //
+        // `erase' returns a valid iterator of the instruction before the
+        // one that has been erased. This makes the validator valid, and
+        // since BIL.end() is fetch at each loop iteration, `IIT' is
+        // compared against a valid iterator.
+        //
+        // see also
+        // http://llvm.org/docs/ProgrammersManual.html#replacing-an-instruction-with-another-value
+        ReplaceInstWithValue(BB.getInstList(), IIT, NewValue);
+        modified = true;
 
-            // update statistics!
-            // They are printed out with -analyze on the opt command line
-            ++MBACount;
+        // update statistics!
+        // They are printed out with -analyze on the opt command line
+        ++MBACount;
       }
     }
     return modified;
@@ -146,7 +138,7 @@ public:
  */
 char MBA::ID = 0;
 static RegisterPass<MBA>
-    X("mba",  // the option name -> -mba
+    X("mba",                                   // the option name -> -mba
       "Mixed Boolean Arithmetic Substitution", // option description
       true, // true as we don't modify the CFG
       false // true if we're writing an analysis
@@ -158,10 +150,12 @@ static RegisterPass<MBA>
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
 static void registerClangPass(const PassManagerBuilder &,
-                              legacy::PassManagerBase &PM)
-{ PM.add(new MBA()); }
+                              legacy::PassManagerBase &PM) {
+  PM.add(new MBA());
+}
 
 // Note the registration point, clang offers several insertion point where you
 // can insert your pass
-static RegisterStandardPasses RegisterClangPass
-    (PassManagerBuilder::EP_EarlyAsPossible, registerClangPass);
+static RegisterStandardPasses
+    RegisterClangPass(PassManagerBuilder::EP_EarlyAsPossible,
+                      registerClangPass);
