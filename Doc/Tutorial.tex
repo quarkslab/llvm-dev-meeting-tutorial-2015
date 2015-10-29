@@ -461,7 +461,7 @@
     \begin{frame}{stage 2 --- MBA}
         \framesubtitle{Mixed Boolean Arithmetic}
 
-        \begin{alertblock}{Simple Instruction Selection}
+        \begin{alertblock}{Simple Instruction Substitution}
             Turns: $a + b$
 
             Into: $(a \oplus b) + 2 \times (a \wedge b)$
@@ -531,7 +531,7 @@
         \end{block}
     \end{frame}
 
-    \begin{frame}[containsverbatim]{stage 2 --- advanced tests}
+    \begin{frame}[containsverbatim]{stage 2 --- Tests}
     \begin{minipage}{\textwidth}
             \scriptsize
             \lstinputlisting[breaklines=true,linerange={1-5},language=llvm]{../Tests/MBA.ll}
