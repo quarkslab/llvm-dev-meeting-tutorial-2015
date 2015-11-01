@@ -202,7 +202,7 @@ private:
 char DuplicateBB::ID = 0;
 static RegisterPass<DuplicateBB> X("duplicate-bb",
                                    "Duplicate Basic Blocks Pass",
-                                   true, // modifies the CFG!
+                                   false, // modifies the CFG!
                                    false);
 
 /* for clang pass registration
