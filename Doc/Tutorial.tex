@@ -513,6 +513,7 @@
     \end{minipage}
     \end{frame}
 
+
     \begin{frame}{stage 2 --- Write a simple test}
         \begin{alertblock}{\Command{lit} principles}
             \begin{itemize}
@@ -532,6 +533,13 @@
     \end{frame}
 
     \begin{frame}[containsverbatim]{stage 2 --- Tests}
+        \begin{minipage}{\textwidth}
+            \footnotesize
+            \lstinputlisting[breaklines=true,language=c]{../Tests/MBA.c}
+        \end{minipage}
+    \end{frame}
+
+    \begin{frame}[containsverbatim]{stage 2 --- More tests}
     \begin{minipage}{\textwidth}
             \scriptsize
             \lstinputlisting[breaklines=true,linerange={1-5},language=llvm]{../Tests/MBA.ll}
@@ -766,7 +774,7 @@
         \begin{alertblock}{Bonus}
             \begin{itemize}
                 \item Declare extra options
-                %\item Fuzz your passes
+                \item Fuzz your passes
                 \item Add a support library
             \end{itemize}
         \end{alertblock}
@@ -858,29 +866,29 @@
 
     \end{frame}
 
-%     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
-%         \framesubtitle{Fuzz your creation}
-%         \begin{alertblock}{Using \Command{csmith}}
-%             \begin{enumerate}
-%                 \item Pick \url{http://embed.cs.utah.edu/csmith/}
-%                 \item Write a configuration file, e.g. \Command{fuzz.cfg}:
-%                     {
-%                         \scriptsize
-% \begin{lstlisting}[language=bash]
-% clang -O2
-% clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
-% \end{lstlisting}
-%                     }
-%                 \item Run generation!
-%                     {
-%                         \scriptsize
-% \begin{lstlisting}[language=bash]
-% % CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
-% \end{lstlisting}
-%                     }
-%             \end{enumerate}
-%         \end{alertblock}
-%     \end{frame}
+     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
+         \framesubtitle{Fuzz your creation}
+         \begin{alertblock}{Using \Command{csmith}}
+             \begin{enumerate}
+                 \item Pick \url{http://embed.cs.utah.edu/csmith/}
+                 \item Write a configuration file, e.g. \Command{fuzz.cfg}:
+                     {
+                         \scriptsize
+ \begin{lstlisting}[language=bash]
+ clang -O2
+ clang -O2 -Xclang -load -Xclang LLVMDuplicateBB.so
+ \end{lstlisting}
+                     }
+                 \item Run generation!
+                     {
+                         \scriptsize
+ \begin{lstlisting}[language=bash]
+ % CSMITH_HOME=$PWD ./scripts/compiler_test.pl 1000 fuzz.cfg
+ \end{lstlisting}
+                     }
+             \end{enumerate}
+         \end{alertblock}
+     \end{frame}
 
     \begin{frame}[containsverbatim]{stage 4 --- Bonus}
         \framesubtitle{Add extra options}
@@ -948,6 +956,7 @@
             \item[]\texttt{Serge~Guelton~<sguelton@quarkslab.com>}
             \item[]\texttt{Adrien Guinet <aguinet@quarkslab.com>}
         \end{itemize}
+        \centering\url{https://github.com/quarkslab/llvm-dev-meeting-tutorial-2015}
         %
         \begin{itemize}
             \centering
