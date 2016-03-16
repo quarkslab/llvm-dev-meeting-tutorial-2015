@@ -91,6 +91,14 @@ ReachableIntegerValuesPass::getReachableIntegerValuesMap() const {
   return ReachableIntegerValuesMap;
 }
 
+void ReachableIntegerValuesPass::print(raw_ostream &O, Module const*) const {
+  for(auto const& KV: ReachableIntegerValuesMap) {
+    O << "BB " << KV.first << '\n';
+    for(auto const& IntegerValue : KV.second)
+      O << "    " << *IntegerValue << '\n';
+  }
+}
+
 char ReachableIntegerValuesPass::ID = 0;
 static RegisterPass<ReachableIntegerValuesPass>
     X("reachable-integer-values",         // pass option

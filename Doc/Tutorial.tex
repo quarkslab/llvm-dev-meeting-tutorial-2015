@@ -23,7 +23,7 @@
 \makeatletter
 \lstdefinelanguage{llvm}{
   morecomment = [l]{;},
-  morestring=[b]", 
+  morestring=[b]",
   sensitive = true,
   classoffset=0,
   morekeywords={
@@ -117,7 +117,7 @@
 %%
 
 \title{Building, Testing and Debugging a Simple out-of-tree LLVM Pass}
-\date{October 29, 2015, LLVM Developers' Meeting}
+\date{March 17, 2016, LLVM Developers' Meeting}
 
 \begin{document}
 
@@ -132,7 +132,7 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \begin{frame}{LLVM 3.7 --- Resources}
+    \begin{frame}{LLVM 3.8 --- Resources}
         \begin{center}
             \url{https://github.com/quarkslab/llvm-dev-meeting-tutorial-2015}
         \end{center}
@@ -207,19 +207,19 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    \begin{frame}{LLVM 3.7 --- Tutorial}
+    \begin{frame}{LLVM 3.8 --- Tutorial}
         \begin{center}
             \textbf{\Large Press Start Button}
         \end{center}
     \end{frame}
 
-    \begin{frame}{LLVM 3.7 --- Prerequisite}
+    \begin{frame}{LLVM 3.8 --- Prerequisite}
         \begin{center}
-            \textbf{\Large Please Load LLVM3.7}
+            \textbf{\Large Please Load LLVM3.8}
         \end{center}
     \end{frame}
 
-    \begin{frame}{LLVM 3.7}
+    \begin{frame}{LLVM 3.8}
         \begin{center}
             \begin{itemize}
                 \centering
@@ -231,7 +231,7 @@
         \end{center}
     \end{frame}
 
-    \begin{frame}{LLVM 3.7}
+    \begin{frame}{LLVM 3.8}
 
             \begin{itemize}
                 \centering
@@ -244,7 +244,7 @@
 
     \end{frame}
 
-    \begin{frame}{LLVM 3.7}
+    \begin{frame}{LLVM 3.8}
 
             \begin{itemize}
                 \centering
@@ -663,7 +663,7 @@
         \begin{alertblock}{Pass Registration}
         {
         \scriptsize
-        \lstinputlisting[breaklines=false,linerange={95-100},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        \lstinputlisting[breaklines=false,linerange={103-108},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
         }
         \end{alertblock}
 
@@ -687,7 +687,7 @@
         \structure{API}\\
         {
         \footnotesize
-        \lstinputlisting[breaklines=true,linerange={14-16},language=c++]{../include/ReachableIntegerValues.h}
+        \lstinputlisting[breaklines=true,linerange={14-17},language=c++]{../include/ReachableIntegerValues.h}
         }
     \end{frame}
 
@@ -726,10 +726,30 @@
         \end{alertblock}
     \end{frame}
 
+    \begin{frame}[containsverbatim]{stage 3 --- \texttt{print}}
+        \begin{alertblock}{Usage}
+        {
+        \footnotesize
+\begin{lstlisting}
+> opt test.ll -load lib/LLVMReachableIntegerValues.so \
+    -analyze -reachable-integer-values
+\end{lstlisting}
+        }
+        \end{alertblock}
+        \begin{alertblock}{Implementation}
+        {
+        \footnotesize
+        \lstinputlisting[breaklines=true,linerange={94-100},language=c++]{../ReachableIntegerValues/ReachableIntegerValues.cpp}
+        }
+        \end{alertblock}
+
+    \end{frame}
+
+
     \begin{frame}[containsverbatim]{stage 3 --- Bonus}
         \framesubtitle{LLVM's coding standard}
 
-        \alert{Optional}: You're working out-of tree.\\
+        \alert{Optional}: You're working out-of-tree.\\
         But\dots
         \begin{itemize}
             \item Provides a common reference
@@ -739,7 +759,7 @@
             \footnotesize
 \begin{lstlisting}[language=bash]
 % find . \( -name '*.cpp' -o -name '*.h' \) \
-    -exec clang-format-3.7 -i {} \;
+    -exec clang-format-3.8 -i {} \;
 \end{lstlisting}
         }
         \url{http://llvm.org/docs/CodingStandards.html}
