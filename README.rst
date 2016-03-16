@@ -4,7 +4,7 @@ LLVM Developer Meeting Tutorial: Building an Out-of-Source Pass
 This repository contains the code supporting a tutorial concerning building,
 testing and using an out-of-source LLVM project.
 
-It assumes you properly installed LLVM **3.7**, for instance using::
+It assumes you properly installed LLVM **3.8**, for instance using::
 
     > git clone http://llvm.org/git/llvm.git --branch release_38 --depth 1 
     > cd llvm/tools
