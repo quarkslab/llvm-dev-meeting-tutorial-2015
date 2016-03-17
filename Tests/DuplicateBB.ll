@@ -1,5 +1,5 @@
-; RUN: opt -load %bindir/lib/LLVMReachableIntegerValues${MOD_EXT} -load %bindir/lib/LLVMDuplicateBB${MOD_EXT} -duplicate-bb %s -S -o %t0.ll
-; RUN: opt -load %bindir/lib/LLVMReachableIntegerValues${MOD_EXT} -load %bindir/lib/LLVMDuplicateBB${MOD_EXT} -duplicate-bb %s -S | FileCheck %s
+; RUN: opt -load %bindir/ReachableIntegerValues/LLVMReachableIntegerValues${MOD_EXT} -load %bindir/DuplicateBB/LLVMDuplicateBB${MOD_EXT} -duplicate-bb %s -S -o %t0.ll
+; RUN: opt -load %bindir/ReachableIntegerValues/LLVMReachableIntegerValues${MOD_EXT} -load %bindir/DuplicateBB/LLVMDuplicateBB${MOD_EXT} -duplicate-bb %s -S | FileCheck %s
 
 ; CHECK-LABEL: while.cond
 ; check that we have more than one phi in the output
