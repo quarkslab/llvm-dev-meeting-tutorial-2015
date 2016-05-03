@@ -11,7 +11,7 @@ It assumes you properly installed LLVM **3.8**, for instance using::
     > git clone http://llvm.org/git/clang.git --branch release_38 --depth 1
     > cd ..
     > mkdir _build && cd _build
-    > cmake .. -DCMAKE_BUILD_TYPE=Releasa+Debuge -DLLVM_INSTALL_UTILS -DCMAKE_INSTALL_PREFIX=$HOME/llvm-3.8
+    > cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLLVM_INSTALL_UTILS=ON -DCMAKE_INSTALL_PREFIX=$HOME/llvm-3.8
     > make
     > make install
 
