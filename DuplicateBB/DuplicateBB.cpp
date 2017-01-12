@@ -147,6 +147,9 @@ private:
     ValueToValueMapTy ThenVMap;
     ValueToValueMapTy ElseVMap;
 
+    // It's always hazardous to remove instruction on the fly, so store them here and purge later
+    SmallVector<Instruction*, 8> ToRemove;
+
     // iterate through the original basic block, clone every instruction to
     // add them to the true/false branch
     // and update their use on the fly, through values stored in then_mapping
@@ -175,24 +178,34 @@ private:
         ElseClone->insertBefore(ElseTerm);
         ElseVMap[&Instr] = ElseClone;
 
+        // instructions that don't produce a value don't need to be in the Tail
+        if(ThenClone->getType()->isVoidTy()) {
+          ToRemove.push_back(&Instr);
+        }
+        else {
         // instruction that produce a value should not require a slot in the
         // TAIL *but* they can be used from the context, so just always
         // generate a PHI, and let further optimization do the cleaning
-        PHINode *Phi = PHINode::Create(ThenClone->getType(), 2);
-        Phi->addIncoming(ThenClone, ThenTerm->getParent());
-        Phi->addIncoming(ElseClone, ElseTerm->getParent());
-        TailVMap[&Instr] = Phi;
+          PHINode *Phi = PHINode::Create(ThenClone->getType(), 3);
+          Phi->addIncoming(ThenClone, ThenTerm->getParent());
+          Phi->addIncoming(ElseClone, ElseTerm->getParent());
+          TailVMap[&Instr] = Phi;
 
-        ReMapper[&Instr] = Phi;
+          ReMapper[&Instr] = Phi;
 
-        // As we modify the instructions as we go,
-        // use the iterator version of ReplaceInstWithInst
-        ReplaceInstWithInst(Tail->getInstList(),
-                            IIT, Phi);
+          // As we modify the instructions as we go,
+          // use the iterator version of ReplaceInstWithInst
+          ReplaceInstWithInst(Tail->getInstList(),
+                              IIT, Phi);
+        }
       } else {
         RemapInstruction(&Instr, TailVMap, RF_IgnoreMissingEntries);
       }
     }
+
+    // purging the instructions that don't produce a value from the Tail
+    for(auto* I : ToRemove)
+      I->eraseFromParent();
   }
 };
 }
